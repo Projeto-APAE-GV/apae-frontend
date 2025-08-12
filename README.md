@@ -18,6 +18,7 @@ git clone https://github.com/Projeto-APAE-GV/apae-frontend.git
 cd apae-frontend
 
 📦 3.2 Instalar as Dependências
+
 npm install
 
 ⚙️ 3.3 Configurar Variáveis de Ambiente
