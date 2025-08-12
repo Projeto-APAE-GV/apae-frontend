@@ -12,9 +12,10 @@ npm: >= 9.x (acompanha o Node.js)
 Git: para versionamento de código
 
 3. 🚀 Passo a Passo para Executar o Projeto
+   
 🧾 3.1 Clonar o Repositório
-git clone https://github.com/seu-usuario/seu-repositorio-frontend.git
-cd seu-repositorio-frontend
+git clone https://github.com/Projeto-APAE-GV/apae-frontend.git
+cd apae-frontend
 
 📦 3.2 Instalar as Dependências
 npm install
