@@ -1,0 +1,103 @@
+.cabecalho {
+    background: linear-gradient(135deg, #4A90E2, #357ABD);
+    padding: 1rem 0;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.cabecalho-conteudo {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 2rem;
+}
+
+.logo-link {
+    display: flex;
+    align-items: center;
+    text-decoration: none;
+    color: white;
+}
+
+.logo {
+    margin-right: 0.5rem;
+}
+
+.apae-brasil {
+    font-size: 1.2rem;
+    font-weight: bold;
+    color: white;
+}
+
+.navegacao {
+    display: flex;
+    gap: 2rem;
+}
+
+.nav-item {
+    color: white;
+    text-decoration: none;
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    transition: background-color 0.3s;
+}
+
+.nav-item:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+.usuario-info {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.usuario-avatar {
+    display: flex;
+    align-items: center;
+}
+
+.avatar-circulo {
+    width: 40px;
+    height: 40px;
+    background-color: #2c3e50;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: bold;
+    font-size: 1.2rem;
+}
+
+.usuario-dados {
+    display: flex;
+    flex-direction: column;
+    color: white;
+}
+
+.usuario-nome {
+    font-weight: bold;
+    font-size: 0.9rem;
+}
+
+.usuario-tipo {
+    font-size: 0.8rem;
+    opacity: 0.8;
+    text-transform: capitalize;
+}
+
+.btn-sair {
+    background: transparent;
+    border: 1px solid white;
+    color: white;
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.btn-sair:hover {
+    background: white;
+    color: #4A90E2; }

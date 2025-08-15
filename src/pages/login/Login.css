@@ -1,0 +1,243 @@
+.login-container {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #f5f5f5;
+}
+
+.login-content {
+    display: flex;
+    width: 100%;
+    max-width: 1000px;
+    min-height: 600px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.login-form-section {
+    flex: 1;
+    background: white;
+    padding: 3rem 2rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.login-header {
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+.logo {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 1rem;
+}
+
+.titulo-principal {
+    font-size: 1.8rem;
+    font-weight: bold;
+    color: #333;
+    margin: 0;
+    margin-bottom: 0.5rem;
+}
+
+.subtitulo {
+    color: #666;
+    margin: 0;
+    font-size: 0.9rem;
+}
+
+.login-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.campo {
+    display: flex;
+    flex-direction: column;
+}
+
+.campo label {
+    font-weight: 500;
+    margin-bottom: 0.5rem;
+    color: #333;
+}
+
+.campo input {
+    padding: 0.75rem;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 1rem;
+    transition: border-color 0.3s;
+    background-color: #f8f9fa;
+}
+
+.campo input:focus {
+    outline: none;
+    border-color: #4A90E2;
+    background-color: white;
+}
+
+.input-erro {
+    border-color: #e74c3c !important;
+}
+
+.mensagem-erro {
+    color: #e74c3c;
+    font-size: 0.8rem;
+    margin-top: 0.25rem;
+}
+
+.erro-login {
+    background-color: #f8d7da;
+    color: #721c24;
+    padding: 0.75rem;
+    border-radius: 4px;
+    border: 1px solid #f5c6cb;
+    font-size: 0.9rem;
+    text-align: center;
+}
+
+.btn-entrar {
+    background: linear-gradient(135deg, #4A90E2, #357ABD);
+    color: white;
+    padding: 0.75rem;
+    border: none;
+    border-radius: 4px;
+    font-size: 1rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.btn-entrar:hover:not(:disabled) {
+    background: linear-gradient(135deg, #357ABD, #2968A3);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(74, 144, 226, 0.3);
+}
+
+.btn-entrar:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.login-visual-section {
+    flex: 1;
+    background: linear-gradient(135deg, #FFD700, #FFA500);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+}
+
+.visual-content {
+    text-align: center;
+}
+
+.coracao-container {
+    position: relative;
+}
+
+.coracao {
+    background: #4A90E2;
+    width: 300px;
+    height: 200px;
+    position: relative;
+    border-radius: 50px 50px 0 0;
+    transform: rotate(-45deg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    margin: 2rem auto;
+}
+
+.coracao:before,
+.coracao:after {
+    content: '';
+    width: 150px;
+    height: 200px;
+    position: absolute;
+    left: 75px;
+    top: -100px;
+    background: #4A90E2;
+    border-radius: 150px 150px 0 0;
+}
+
+.coracao:before {
+    left: -75px;
+}
+
+.logo-coracao {
+    transform: rotate(45deg);
+    z-index: 10;
+    position: relative;
+}
+
+.apae-titulo {
+    transform: rotate(45deg);
+    color: white;
+    font-size: 2rem;
+    font-weight: bold;
+    margin: 0.5rem 0;
+    z-index: 10;
+    position: relative;
+}
+
+.apae-localizacao {
+    transform: rotate(45deg);
+    color: white;
+    font-size: 0.9rem;
+    margin: 0;
+    z-index: 10;
+    position: relative;
+}
+
+.coracao-container::before {
+    content: '';
+    position: absolute;
+    bottom: -50px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 0;
+    height: 0;
+    border-left: 30px solid transparent;
+    border-right: 30px solid transparent;
+    border-top: 50px solid #4A90E2;
+    z-index: 5;
+}
+
+@media (max-width: 768px) {
+    .login-content {
+        flex-direction: column;
+        margin: 1rem;
+    }
+
+    .login-visual-section {
+        min-height: 200px;
+    }
+
+    .coracao {
+        width: 200px;
+        height: 130px;
+    }
+
+    .coracao:before,
+    .coracao:after {
+        width: 100px;
+        height: 130px;
+        top: -65px;
+    }
+
+    .coracao:before {
+        left: -50px;
+    }
+
+    .apae-titulo {
+        font-size: 1.5rem;
+    } }
