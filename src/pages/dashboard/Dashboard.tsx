@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import './Dashboard.css';
 
 import Cabecalho from '../../components/cabecalho/Cabecalho'; 
+import { obterUsuarioLogado } from '../../utils/AuthUtils';
 
 const agendaDoDia = [
     { hora: '09:00', nome: 'Maria Oliveira' },
@@ -12,6 +13,7 @@ const agendaDoDia = [
 ];
 
 const Dashboard: React.FC = () => {
+    const usuario = obterUsuarioLogado();
     
     return (
         <>   
@@ -50,10 +52,13 @@ const Dashboard: React.FC = () => {
                                         <div className="shortcut-icon buscar">🔍</div>
                                         <h3>Buscar CPF</h3>
                                     </Link>
-                                    <Link to="/cadastro-usuario" className="shortcut-card">
-                                        <div className="shortcut-icon cadastrar">➕</div>
-                                        <h3>Cadastrar Usuário</h3>
-                                    </Link>
+
+                                    {usuario?.tipo === 'admin' && (
+                                        <Link to="/cadastro-usuario" className="shortcut-card">
+                                            <div className="shortcut-icon cadastrar">➕</div>
+                                            <h3>Cadastrar Usuário</h3>
+                                        </Link>
+                                    )}
                                 </div>
                             </section>
                         </div>
