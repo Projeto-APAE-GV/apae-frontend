@@ -94,8 +94,8 @@ const Login: React.FC = () => {
                                 </g>
                             </svg>
                         </div>
-                        <h1 className="titulo-principal">APAE BRASIL</h1>
-                        <p className="subtitulo">Federação Nacional das Apaes</p>
+                        <h1 className="titulo-principal">APAE GOVERNADOR VALADARES</h1>
+                        <p className="subtitulo">Associação dos Pais e Amigos dos Excepcionais</p>
                     </div>
 
                     <form onSubmit={handleSubmit(onSubmit)} className="login-form">

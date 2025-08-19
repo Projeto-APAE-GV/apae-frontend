@@ -47,7 +47,7 @@ const Cabecalho: React.FC = () => {
                             </g>
                         </svg>
                     </div>
-                    <span className="apae-brasil">APAE BRASIL</span>
+                    <span className="apae-gv">APAE-GV</span>
                 </Link>
 
                 <nav className="navegacao">
