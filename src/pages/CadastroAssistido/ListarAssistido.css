@@ -1,0 +1,537 @@
+/* ListarAssistido.css - VERSÃO CORRIGIDA */
+.min-h-screen {
+    min-height: 100vh;
+  }
+  
+  .bg-gray-50 {
+    background-color: #f9fafb;
+  }
+  
+  .bg-white {
+    background-color: #ffffff;
+  }
+  
+  .bg-blue-100 {
+    background-color: #dbeafe;
+  }
+  
+  .bg-blue-600 {
+    background-color: #2563eb;
+  }
+  
+  .bg-blue-600:hover {
+    background-color: #1d4ed8;
+  }
+  
+  .bg-gray-200 {
+    background-color: #e5e7eb;
+  }
+  
+  .bg-gray-200:hover {
+    background-color: #d1d5db;
+  }
+  
+  .bg-green-100 {
+    background-color: #dcfce7;
+  }
+  
+  .bg-red-100 {
+    background-color: #fee2e2;
+  }
+  
+  .bg-gray-50-table {
+    background-color: #f9fafb;
+  }
+  
+  .p-6 {
+    padding: 1.5rem;
+  }
+  
+  .p-1 {
+    padding: 0.25rem;
+  }
+  
+  .p-2 {
+    padding: 0.5rem;
+  }
+  
+  .px-4 {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+  
+  .px-6 {
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
+  }
+  
+  .py-2 {
+    padding-top: 0.5rem;
+    padding-bottom: 0.5rem;
+  }
+  
+  .py-3 {
+    padding-top: 0.75rem;
+    padding-bottom: 0.75rem;
+  }
+  
+  .py-4 {
+    padding-top: 1rem;
+    padding-bottom: 1rem;
+  }
+  
+  .py-12 {
+    padding-top: 3rem;
+    padding-bottom: 3rem;
+  }
+  
+  .mb-1 {
+    margin-bottom: 0.25rem;
+  }
+  
+  .mb-2 {
+    margin-bottom: 0.5rem;
+  }
+  
+  .mb-4 {
+    margin-bottom: 1rem;
+  }
+  
+  .mb-6 {
+    margin-bottom: 1.5rem;
+  }
+  
+  .ml-4 {
+    margin-left: 1rem;
+  }
+  
+  .mr-2 {
+    margin-right: 0.5rem;
+  }
+  
+  .mx-auto {
+    margin-left: auto;
+    margin-right: auto;
+  }
+  
+  .max-w-7xl {
+    max-width: 80rem;
+  }
+  
+  .w-full {
+    width: 100%;
+  }
+  
+  .w-auto {
+    width: auto;
+  }
+  
+  .gap-2 {
+    gap: 0.5rem;
+  }
+  
+  .gap-3 {
+    gap: 0.75rem;
+  }
+  
+  .gap-4 {
+    gap: 1rem;
+  }
+  
+  .space-x-2 > * + * {
+    margin-left: 0.5rem;
+  }
+  
+  .flex {
+    display: flex;
+  }
+  
+  .flex-col {
+    flex-direction: column;
+  }
+  
+  .items-center {
+    align-items: center;
+  }
+  
+  .items-start {
+    align-items: flex-start;
+  }
+  
+  .items-end {
+    align-items: flex-end;
+  }
+  
+  .justify-center {
+    justify-content: center;
+  }
+  
+  .justify-between {
+    justify-content: space-between;
+  }
+  
+  .flex-shrink-0 {
+    flex-shrink: 0;
+  }
+  
+  .grid {
+    display: grid;
+  }
+  
+  .grid-cols-1 {
+    grid-template-columns: repeat(1, minmax(0, 1fr));
+  }
+  
+  .grid-cols-3 {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+  
+  .relative {
+    position: relative;
+  }
+  
+  .absolute {
+    position: absolute;
+  }
+  
+  .inset-y-0 {
+    top: 0;
+    bottom: 0;
+  }
+  
+  .left-0 {
+    left: 0;
+  }
+  
+  .rounded {
+    border-radius: 0.25rem;
+  }
+  
+  .rounded-lg {
+    border-radius: 0.5rem;
+  }
+  
+  .rounded-xl {
+    border-radius: 0.75rem;
+  }
+  
+  .rounded-full {
+    border-radius: 9999px;
+  }
+  
+  .border {
+    border-width: 1px;
+    border-style: solid;
+  }
+  
+  .border-gray-300 {
+    border-color: #d1d5db;
+  }
+  
+  .border-b-2 {
+    border-bottom-width: 2px;
+  }
+  
+  .border-blue-600 {
+    border-color: #2563eb;
+  }
+  
+  .shadow-sm {
+    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  }
+  
+  .text-left {
+    text-align: left;
+  }
+  
+  .text-center {
+    text-align: center;
+  }
+  
+  .text-xs {
+    font-size: 0.75rem;
+    line-height: 1rem;
+  }
+  
+  .text-sm {
+    font-size: 0.875rem;
+    line-height: 1.25rem;
+  }
+  
+  .text-lg {
+    font-size: 1.125rem;
+    line-height: 1.75rem;
+  }
+  
+  .text-xl {
+    font-size: 1.25rem;
+    line-height: 1.75rem;
+  }
+  
+  .text-2xl {
+    font-size: 1.5rem;
+    line-height: 2rem;
+  }
+  
+  .text-5xl {
+    font-size: 3rem;
+    line-height: 1;
+  }
+  
+  .font-medium {
+    font-weight: 500;
+  }
+  
+  .font-semibold {
+    font-weight: 600;
+  }
+  
+  .font-bold {
+    font-weight: 700;
+  }
+  
+  .uppercase {
+    text-transform: uppercase;
+  }
+  
+  .tracking-wider {
+    letter-spacing: 0.05em;
+  }
+  
+  .text-gray-300 {
+    color: #d1d5db;
+  }
+  
+  .text-gray-400 {
+    color: #9ca3af;
+  }
+  
+  .text-gray-500 {
+    color: #6b7280;
+  }
+  
+  .text-gray-600 {
+    color: #4b5563;
+  }
+  
+  .text-gray-700 {
+    color: #374151;
+  }
+  
+  .text-gray-800 {
+    color: #1f2937;
+  }
+  
+  .text-gray-900 {
+    color: #111827;
+  }
+  
+  .text-blue-600 {
+    color: #2563eb;
+  }
+  
+  .text-green-600 {
+    color: #059669;
+  }
+  
+  .text-green-800 {
+    color: #065f46;
+  }
+  
+  .text-red-600 {
+    color: #dc2626;
+  }
+  
+  .text-red-800 {
+    color: #991b1b;
+  }
+  
+  .text-white {
+    color: #ffffff;
+  }
+  
+  .hover\:text-blue-900:hover {
+    color: #1e3a8a;
+  }
+  
+  .hover\:text-green-900:hover {
+    color: #064e3b;
+  }
+  
+  .hover\:text-red-900:hover {
+    color: #7f1d1d;
+  }
+  
+  .hover\:bg-blue-50:hover {
+    background-color: #eff6ff;
+  }
+  
+  .hover\:bg-green-50:hover {
+    background-color: #ecfdf5;
+  }
+  
+  .hover\:bg-red-50:hover {
+    background-color: #fef2f2;
+  }
+  
+  .hover\:bg-gray-50:hover {
+    background-color: #f9fafb;
+  }
+  
+  .focus\:ring-2:focus {
+    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.5);
+  }
+  
+  .focus\:ring-blue-500:focus {
+    --tw-ring-color: #3b82f6;
+  }
+  
+  .focus\:border-transparent:focus {
+    border-color: transparent;
+  }
+  
+  .pointer-events-none {
+    pointer-events: none;
+  }
+  
+  .overflow-hidden {
+    overflow: hidden;
+  }
+  
+  .overflow-x-auto {
+    overflow-x: auto;
+  }
+  
+  .whitespace-nowrap {
+    white-space: nowrap;
+  }
+  
+  .divide-y > :not([hidden]) ~ :not([hidden]) {
+    border-top-width: 1px;
+  }
+  
+  .divide-gray-200 > :not([hidden]) ~ :not([hidden]) {
+    border-color: #e5e7eb;
+  }
+  
+  .animate-spin {
+    animation: spin 1s linear infinite;
+  }
+  
+  @keyframes spin {
+    from {
+      transform: rotate(0deg);
+    }
+    to {
+      transform: rotate(360deg);
+    }
+  }
+  
+  .transition-colors {
+    transition-property: background-color, border-color, color, fill, stroke;
+    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+    transition-duration: 150ms;
+  }
+  
+  /* CORREÇÕES ESPECÍFICAS PARA OS PROBLEMAS MENCIONADOS */
+  
+  /* Correção para o ícone de pesquisa torto */
+  .relative .flex.items-center {
+    height: 100%;
+    display: flex;
+    align-items: center; /* Centralização vertical */
+    justify-content: center; /* Centralização horizontal */
+  }
+  
+  /* Garantir que o ícone de pesquisa fique perfeitamente alinhado */
+  .relative .flex.items-center .fa-search {
+    position: relative;
+    top: 0;
+    transform: none; /* Remove qualquer transformação que possa estar torta */
+  }
+  
+  /* Melhorias na tabela para evitar desalinhamentos */
+  table {
+    border-collapse: collapse;
+    width: 100%;
+  }
+  
+  th, td {
+    text-align: left;
+    padding: 12px 16px;
+    vertical-align: middle; /* Alinhamento vertical centralizado */
+  }
+  
+  th {
+    background-color: #f8f9fa;
+    font-weight: 600;
+  }
+  
+  tr:nth-child(even) {
+    background-color: #f8f9fa;
+  }
+  
+  /* Ajustes de responsividade */
+  @media (max-width: 768px) {
+    .hidden-mobile {
+      display: none;
+    }
+    
+    .table-responsive {
+      overflow-x: auto;
+      display: block;
+      width: 100%;
+    }
+  }
+  
+  /* Correção para os botões de ação */
+  .text-sm.font-medium .flex.space-x-2 {
+    display: flex;
+    align-items: center;
+  }
+  
+  /* Estilo para a mensagem de nenhum resultado */
+  .text-center {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 3rem 1rem;
+  }
+  
+  /* Ajustes para os filtros */
+  .grid.grid-cols-1.md\:grid-cols-3.gap-4 {
+    align-items: end;
+  }
+  
+  /* Garantir que os elementos de status estejam alinhados */
+  .inline-flex.items-center {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  /* Responsividade */
+  @media (min-width: 768px) {
+    .md\:flex-row {
+      flex-direction: row;
+    }
+    
+    .md\:items-center {
+      align-items: center;
+    }
+    
+    .md\:w-auto {
+      width: auto;
+    }
+    
+    .md\:grid-cols-3 {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+  }
+  
+  @media (min-width: 640px) {
+    .sm\:flex-row {
+      flex-direction: row;
+    }
+  }
