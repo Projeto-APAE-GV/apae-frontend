@@ -1,8 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import './Dashboard.css';
-
-import Cabecalho from '../../components/cabecalho/Cabecalho'; 
 import { obterUsuarioLogado } from '../../utils/AuthUtils';
 
 const agendaDoDia = [
@@ -17,7 +15,7 @@ const Dashboard: React.FC = () => {
     
     return (
         <>   
-            <Cabecalho />
+          
 
             <div className="dashboard">
                 <div className="dashboard-content">
