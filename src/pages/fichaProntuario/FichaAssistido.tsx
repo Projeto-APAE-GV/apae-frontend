@@ -35,12 +35,6 @@ interface CategoriaComPerguntas extends Categoria {
   perguntas: Pergunta[];
 }
 
-interface RespostaSalvar {
-  id_pergunta: number;
-  resposta: string;
-  id_assistido: number;
-}
-
 const FichaAssistido: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
@@ -55,6 +49,7 @@ const FichaAssistido: React.FC = () => {
   const [carregandoPerguntas, setCarregandoPerguntas] = useState<boolean>(true);
   const [salvando, setSalvando] = useState<boolean>(false);
   const [categoriasSalvas, setCategoriasSalvas] = useState<number[]>([]);
+  const [fichaCompleta, setFichaCompleta] = useState<boolean>(false);
 
   // Carregar dados do assistido
   useEffect(() => {
@@ -137,10 +132,9 @@ const FichaAssistido: React.FC = () => {
     }
   }, [assistido]);
 
-  // Carregar respostas existentes - AGORA SÓ DEPOIS QUE O ASSISTIDO E CATEGORIAS ESTIVEREM CARREGADOS
+  // Carregar respostas existentes
   useEffect(() => {
     const carregarRespostasExistentes = async () => {
-      // Verificar se temos todos os dados necessários
       if (!id || id === 'undefined' || !assistido || categorias.length === 0) {
         return;
       }
@@ -151,7 +145,18 @@ const FichaAssistido: React.FC = () => {
         const respostasExistentes: Record<number, string> = {};
         
         res.data.forEach((r: any) => {
-          respostasExistentes[r.id_pergunta] = r.resposta;
+          // Converter resposta do backend para o formato do frontend
+          let respostaValue = '';
+          if (r.resposta_texto !== null && r.resposta_texto !== undefined) {
+            respostaValue = r.resposta_texto;
+          } else if (r.resposta_numero !== null && r.resposta_numero !== undefined) {
+            respostaValue = r.resposta_numero.toString();
+          } else if (r.resposta_data !== null && r.resposta_data !== undefined) {
+            respostaValue = r.resposta_data;
+          } else if (r.resposta_boolean !== null && r.resposta_boolean !== undefined) {
+            respostaValue = r.resposta_boolean.toString();
+          }
+          respostasExistentes[r.id_pergunta] = respostaValue;
         });
         
         setRespostas(respostasExistentes);
@@ -166,15 +171,13 @@ const FichaAssistido: React.FC = () => {
         });
         
         setCategoriasSalvas(Array.from(categoriasComRespostas));
-        console.log('Categorias com respostas salvas:', Array.from(categoriasComRespostas));
       } catch (err) {
         console.error('Erro ao carregar respostas existentes:', err);
-        // Não é crítico se não conseguir carregar respostas existentes
       }
     };
 
     carregarRespostasExistentes();
-  }, [assistido, id, categorias]); // Agora depende de categorias também
+  }, [assistido, id, categorias]);
 
   const handleInputChange = (id_pergunta: number, value: string) => {
     setRespostas(prev => ({
@@ -183,9 +186,50 @@ const FichaAssistido: React.FC = () => {
     }));
   };
 
+  // Função para preparar os dados no formato correto do CreateRespostaDto
+  const prepararDadosResposta = (id_pergunta: number, resposta: string, id_assistido: number, tipo_resposta: string) => {
+    const dadosBase = {
+      id_assistido,
+      id_pergunta
+    };
+
+    switch (tipo_resposta) {
+      case 'texto':
+      case 'opcoes':
+      case 'sexo':
+        return {
+          ...dadosBase,
+          resposta_texto: resposta
+        };
+      
+      case 'numero':
+        return {
+          ...dadosBase,
+          resposta_numero: parseFloat(resposta) || 0
+        };
+      
+      case 'data':
+        return {
+          ...dadosBase,
+          resposta_data: resposta
+        };
+      
+      case 'boolean':
+        return {
+          ...dadosBase,
+          resposta_boolean: resposta === 'true'
+        };
+      
+      default:
+        return {
+          ...dadosBase,
+          resposta_texto: resposta
+        };
+    }
+  };
+
   // Função para salvar respostas da categoria atual
   const salvarRespostasCategoria = async (categoriaIndex: number): Promise<boolean> => {
-    // Verificar se o ID está disponível de múltiplas formas
     let assistidoId: number | null = null;
     
     if (id && id !== 'undefined') {
@@ -197,8 +241,7 @@ const FichaAssistido: React.FC = () => {
     }
 
     if (!assistidoId || isNaN(assistidoId)) {
-      console.error('ID do assistido não encontrado de nenhuma forma');
-      alert('Erro: ID do assistido não encontrado. Recarregue a página.');
+      console.error('ID do assistido não encontrado');
       return false;
     }
 
@@ -210,43 +253,40 @@ const FichaAssistido: React.FC = () => {
 
     try {
       // Preparar respostas da categoria atual para enviar
-      const respostasCategoria = categoria.perguntas
+      const respostasParaSalvar = categoria.perguntas
         .filter(pergunta => respostas[pergunta.id_pergunta] !== undefined && respostas[pergunta.id_pergunta] !== '')
         .map(pergunta => ({
-          id_pergunta: pergunta.id_pergunta,
-          resposta: respostas[pergunta.id_pergunta],
-          id_assistido: assistidoId!
+          pergunta,
+          dados: prepararDadosResposta(
+            pergunta.id_pergunta,
+            respostas[pergunta.id_pergunta],
+            assistidoId!,
+            pergunta.tipo_resposta
+          )
         }));
 
-      if (respostasCategoria.length === 0) {
+      if (respostasParaSalvar.length === 0) {
         console.log('Nenhuma resposta para salvar na categoria:', categoria.nome_categoria);
-        // Mesmo sem respostas, marcamos a categoria como processada
         setCategoriasSalvas(prev => [...prev, categoria.id_categoria]);
         return true;
       }
 
-      console.log('Salvando respostas da categoria:', categoria.nome_categoria, respostasCategoria);
+      console.log('Salvando respostas da categoria:', categoria.nome_categoria, respostasParaSalvar);
 
-      // TENTAR DOIS ENDPOINTS DIFERENTES - um para múltiplas respostas
-      try {
-        // Primeiro tenta o endpoint para salvar várias respostas de uma vez
-        const response = await api.post('/respostas/salvar-varias', {
-          id_assistido: assistidoId,
-          respostas: respostasCategoria
-        });
-        console.log('Respostas salvas com sucesso (salvar-varias):', response.data);
-      } catch (err: any) {
-        console.log('Endpoint salvar-varias falhou, tentando salvar individualmente...');
-        
-        // Se falhar, tenta salvar uma por uma
-        for (const resposta of respostasCategoria) {
-          try {
-            await api.post('/respostas', resposta);
-            console.log(`Resposta salva para pergunta ${resposta.id_pergunta}`);
-          } catch (err) {
-            console.error(`Erro ao salvar resposta para pergunta ${resposta.id_pergunta}:`, err);
-            // Continua tentando as outras
+      // SALVAR CADA RESPOSTA INDIVIDUALMENTE NO FORMATO CORRETO
+      for (const { pergunta, dados } of respostasParaSalvar) {
+        try {
+          console.log('Enviando resposta no formato correto:', dados);
+          
+          await api.post('/respostas', dados);
+          console.log(`Resposta salva para pergunta ${pergunta.id_pergunta}`);
+        } catch (err: any) {
+          console.error(`Erro ao salvar resposta para pergunta ${pergunta.id_pergunta}:`, err);
+          if (err.response) {
+            console.error('Detalhes do erro:', err.response.data);
+            alert(`Erro ao salvar pergunta ${pergunta.id_pergunta}: ${err.response.data.message || 'Verifique o console'}`);
           }
+          // Continua tentando as outras respostas
         }
       }
       
@@ -255,16 +295,12 @@ const FichaAssistido: React.FC = () => {
       return true;
     } catch (err: any) {
       console.error('Erro ao salvar respostas da categoria:', err);
-      if (err.response) {
-        console.error('Detalhes do erro:', err.response.data);
-      }
       return false;
     }
   };
 
   const avancarCategoria = async () => {
     if (activeTab < categorias.length - 1) {
-      // Salvar respostas da categoria atual antes de avançar
       const sucesso = await salvarRespostasCategoria(activeTab);
       
       if (sucesso) {
@@ -284,7 +320,6 @@ const FichaAssistido: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    // Obter ID do assistido de múltiplas fontes
     let assistidoId: number | null = null;
     
     if (id && id !== 'undefined') {
@@ -296,7 +331,7 @@ const FichaAssistido: React.FC = () => {
     }
 
     if (!assistidoId || isNaN(assistidoId)) {
-      alert('ID do assistido não encontrado. Recarregue a página.');
+      alert('ID do assistido não encontrado.');
       return;
     }
     
@@ -337,7 +372,8 @@ const FichaAssistido: React.FC = () => {
 
       if (todasSalvas) {
         alert('Ficha salva com sucesso!');
-        navigate('/ficha-prontuario');
+        setFichaCompleta(true);
+        // Não navega automaticamente, apenas marca como completa
       } else {
         alert(`Erro ao salvar respostas das categorias: ${erros.join(', ')}`);
       }
@@ -422,6 +458,24 @@ const FichaAssistido: React.FC = () => {
           </div>
         </div>
       </div>
+
+      {fichaCompleta && (
+        <div className="ficha-completa-banner">
+          <div className="ficha-completa-content">
+            <span className="ficha-completa-icon">✓</span>
+            <div>
+              <h3>Ficha Completa!</h3>
+              <p>Todas as respostas foram salvas com sucesso.</p>
+            </div>
+            <button 
+              onClick={() => navigate('/ficha-prontuario')}
+              className="btn-voltar-lista"
+            >
+              Voltar para Lista
+            </button>
+          </div>
+        </div>
+      )}
 
       {carregandoPerguntas ? (
         <div className="carregando-perguntas">
@@ -577,22 +631,33 @@ const FichaAssistido: React.FC = () => {
                     Próximo <FaChevronRight />
                   </button>
                 ) : (
-                  <button 
-                    type="submit" 
-                    className="submit-button"
-                    disabled={salvando}
-                  >
-                    {salvando ? (
-                      <>
-                        <div className="spinner pequeno"></div>
-                        Salvando...
-                      </>
-                    ) : (
-                      <>
-                        <FaSave className="button-icon" /> Finalizar e Salvar
-                      </>
-                    )}
-                  </button>
+                  <div style={{ display: 'flex', gap: '10px' }}>
+                    <button 
+                      type="submit" 
+                      className="submit-button"
+                      disabled={salvando}
+                    >
+                      {salvando ? (
+                        <>
+                          <div className="spinner pequeno"></div>
+                          Salvando...
+                        </>
+                      ) : (
+                        <>
+                          <FaSave className="button-icon" /> Finalizar e Salvar
+                        </>
+                      )}
+                    </button>
+                    
+                    <button 
+                      type="button" 
+                      className="nav-button"
+                      onClick={() => navigate('/ficha-prontuario')}
+                      style={{ background: '#6b7280', color: 'white' }}
+                    >
+                      Voltar para Lista
+                    </button>
+                  </div>
                 )}
               </div>
             </form>

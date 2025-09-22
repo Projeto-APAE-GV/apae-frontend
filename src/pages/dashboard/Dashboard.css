@@ -1,298 +1,111 @@
-.dashboard {
+/* Dashboard.css */
+:root {
+    --primary: #3376BC;
+    --secondary: #4CAF50;
+    --accent: #FF9800;
+    --light: #F5F9FF;
+    --dark: #1A3C6E;
+    --text-dark: #333;
+    --text-light: #666;
+    --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.dashboard-apae {
     min-height: 100vh;
-    background-color: #f8f9fa;
-}
-
-.dashboard-content {
-    padding: 2rem 0;
-}
-
-.dashboard-container {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 0 2rem;
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    grid-template-rows: auto auto;
-    gap: 2rem;
-}
-
-.stats-section {
-    grid-column: 1 / -1;
+    background-color: white;
     display: flex;
-    gap: 2rem;
+    align-items: center;
     justify-content: center;
-}
-
-.stat-card {
-    background: white;
-    border-radius: 8px;
     padding: 2rem;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-    min-width: 200px;
 }
 
-.stat-icon {
-    width: 60px;
-    height: 60px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: white;
-}
-
-.stat-icon.usuarios {
-    background: linear-gradient(135deg, #4A90E2, #357ABD);
-}
-
-.stat-icon.prontuarios {
-    background: linear-gradient(135deg, #26D0CE, #1ABC9C);
-}
-
-.stat-info h3 {
-    margin: 0;
-    font-size: 0.9rem;
-    color: #666;
-    font-weight: 500;
-}
-
-.stat-number {
-    font-size: 2rem;
-    font-weight: bold;
-    color: #333;
-}
-
-.usuario-card {
-    background: white;
-    border-radius: 8px;
-    padding: 2rem;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-    min-width: 200px;
-}
-
-.usuario-avatar-grande {
-    display: flex;
-    align-items: center;
-}
-
-.avatar-circulo-grande {
-    width: 60px;
-    height: 60px;
-    background-color: #2c3e50;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: white;
-    font-weight: bold;
-    font-size: 1.5rem;
-}
-
-.usuario-info-card h3 {
-    margin: 0;
-    font-size: 1rem;
-    color: #333;
-    margin-bottom: 0.25rem;
-}
-
-.usuario-tipo-card {
-    font-size: 0.8rem;
-    color: #666;
-    text-transform: capitalize;
-    display: block;
-    margin-bottom: 0.5rem;
-}
-
-.btn-sair-card {
-    background: transparent;
-    border: 1px solid #4A90E2;
-    color: #4A90E2;
-    padding: 0.25rem 0.75rem;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 0.8rem;
-    transition: all 0.3s;
-}
-
-.btn-sair-card:hover {
-    background: #4A90E2;
-    color: white;
-}
-
-.shortcuts-section {
-    grid-column: 1;
-}
-
-.shortcuts-section h2 {
-    margin: 0 0 1.5rem 0;
-    color: #333;
-    font-size: 1.5rem;
-}
-
-.shortcuts-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-    gap: 1rem;
-}
-
-.shortcut-card {
-    background: white;
-    border-radius: 8px;
-    padding: 1.5rem;
-    text-decoration: none;
-    color: #333;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-    transition: all 0.3s;
+.welcome-container {
     text-align: center;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 1rem;
+    color: var(--text-dark);
+    max-width: 800px;
+    padding: 2rem;
+    border-radius: 15px;
+    box-shadow: var(--shadow);
+    background-color: white;
+    border: 1px solid rgba(51, 118, 188, 0.1);
 }
 
-.shortcut-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.15);
+.welcome-message {
+    font-size: 2.8rem;
+    margin-bottom: 3rem;
+    font-weight: 700;
+    color: var(--primary);
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
 }
 
-.shortcut-icon {
-    width: 60px;
-    height: 60px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: white;
-}
-
-.shortcut-icon.cadastrar {
-    background: linear-gradient(135deg, #4A90E2, #357ABD);
-}
-
-.shortcut-icon.preencher {
-    background: linear-gradient(135deg, #26D0CE, #1ABC9C);
-}
-
-.shortcut-icon.buscar {
-    background: linear-gradient(135deg, #FFA500, #FF8C00);
-}
-
-.shortcut-card h3 {
-    margin: 0;
-    font-size: 0.9rem;
-    font-weight: 500;
-}
-
-.agenda-section {
-    grid-column: 2;
+.datetime-container {
     display: flex;
     flex-direction: column;
     gap: 1.5rem;
 }
 
-.agenda-card,
-.comunicados-card {
-    background: white;
-    border-radius: 8px;
-    padding: 1.5rem;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-}
-
-.agenda-card h3,
-.comunicados-card h3 {
-    margin: 0 0 1rem 0;
-    color: #333;
-    font-size: 1.2rem;
-}
-
-.agenda-items {
-    display: flex;
-    flex-direction: column;
-    gap: 0.75rem;
-}
-
-.agenda-item {
+.date-display, .time-display {
     display: flex;
     align-items: center;
+    justify-content: center;
     gap: 1rem;
-    padding: 0.5rem 0;
-    border-bottom: 1px solid #eee;
+    padding: 1.2rem 2rem;
+    background: linear-gradient(135deg, var(--primary) 0%, var(--dark) 100%);
+    color: white;
+    border-radius: 10px;
+    box-shadow: var(--shadow);
 }
 
-.agenda-item:last-child {
-    border-bottom: none;
+.date-display {
+    font-size: 1.8rem;
+    font-weight: 500;
 }
 
-.horario {
-    font-weight: bold;
-    color: #4A90E2;
-    min-width: 60px;
+.time-display {
+    font-size: 2.5rem;
+    font-weight: 600;
 }
 
-.nome {
-    color: #333;
+.date-display i, .time-display i {
+    font-size: 1.5rem;
 }
 
-.comunicados-items {
-    display: flex;
-    flex-direction: column;
-    gap: 0.75rem;
-}
-
-.comunicado-item {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-}
-
-.comunicado-bullet {
-    width: 8px;
-    height: 8px;
-    background: #4A90E2;
-    border-radius: 50%;
-    flex-shrink: 0;
-}
-
-.comunicado-item span {
-    color: #333;
-    font-size: 0.9rem;
-    line-height: 1.4;
-}
-
-@media (max-width: 1024px) {
-    .dashboard-container {
-        grid-template-columns: 1fr;
-    }
-
-    .stats-section {
-        flex-wrap: wrap;
-    }
-
-    .agenda-section {
-        grid-column: 1;
-    }
-}
-
+/* Responsividade */
 @media (max-width: 768px) {
-    .dashboard-container {
-        padding: 0 1rem;
-        gap: 1rem;
+    .welcome-message {
+        font-size: 2.2rem;
     }
+    
+    .date-display {
+        font-size: 1.5rem;
+    }
+    
+    .time-display {
+        font-size: 2rem;
+    }
+}
 
-    .stats-section {
+@media (max-width: 480px) {
+    .welcome-container {
+        padding: 1.5rem;
+    }
+    
+    .welcome-message {
+        font-size: 1.8rem;
+        margin-bottom: 2rem;
+    }
+    
+    .date-display, .time-display {
         flex-direction: column;
-        align-items: center;
+        gap: 0.5rem;
+        padding: 1rem;
     }
-
-    .stat-card,
-    .usuario-card {
-        min-width: 100%;
-        max-width: 300px;
-    } }
+    
+    .date-display {
+        font-size: 1.3rem;
+    }
+    
+    .time-display {
+        font-size: 1.8rem;
+    }
+}
