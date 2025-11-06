@@ -74,7 +74,7 @@ const EditarAssistido: React.FC = () => {
           },
         };
 
-        const response = await axios.get(`http://localhost:3000/assistidos/${id}`, config);
+        const response = await axios.get(`${import.meta.env.VITE_URL_BACKEND || 'http://localhost:3000'}/assistidos/${id}`, config);
         const assistido = response.data;
 
         // Formatando a data para o input type="date"
@@ -151,7 +151,7 @@ const EditarAssistido: React.FC = () => {
     e.preventDefault();
 
     try {
-      const apiURL = `http://localhost:3000/assistidos/${id}`;
+      const apiURL = `${import.meta.env.VITE_URL_BACKEND || 'http://localhost:3000'}/assistidos/${id}`;
       const token = localStorage.getItem('token');
 
       if (!token) {

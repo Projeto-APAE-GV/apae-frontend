@@ -10,7 +10,7 @@ interface UsuarioFormData {
   id?: number;
   nome: string;
   email: string;
-  senha: string;
+  senha?: string;
   telefone: string;
   tipo_usuario: string;
   status_ativo: boolean;
@@ -116,7 +116,7 @@ const EdicaoUsuario: React.FC = () => {
             },
           };
 
-          const response = await axios.get(`http://localhost:3000/usuarios/${id}`, config);
+          const response = await axios.get(`${import.meta.env.VITE_URL_BACKEND || 'http://localhost:3000'}/usuarios/${id}`, config);
           const usuario = response.data;
           
           setFormData({
@@ -148,7 +148,7 @@ const EdicaoUsuario: React.FC = () => {
     }
 
     try {
-      const apiURL = `http://localhost:3000/usuarios/${id}`;
+      const apiURL = `${import.meta.env.VITE_URL_BACKEND || 'http://localhost:3000'}/usuarios/${id}`;
       const token = localStorage.getItem('token');
 
       if (!token) {

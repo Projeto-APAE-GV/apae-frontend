@@ -76,7 +76,7 @@ const CadastroAssistido: React.FC = () => {
     e.preventDefault();
 
     try {
-      const apiURL = 'http://localhost:3000/assistidos';
+      const apiURL = `${import.meta.env.VITE_URL_BACKEND || 'http://localhost:3000'}/assistidos`;
       const token = localStorage.getItem('token');
 
       if (!token) {
