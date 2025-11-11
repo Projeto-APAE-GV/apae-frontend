@@ -1,47 +1,54 @@
 import React, { useState, useEffect } from 'react';
-import { FaUserCircle, FaCamera, FaSave, FaEdit } from 'react-icons/fa';
-import { FiArrowLeft, FiUser, FiMail, FiPhone, FiLock, FiBriefcase } from 'react-icons/fi';
+import { FaSave } from 'react-icons/fa';
+import { FiArrowLeft, FiUser, FiMail, FiLock, FiBriefcase } from 'react-icons/fi';
 import axios from 'axios';
 import { useParams, useNavigate } from 'react-router-dom';
 import './CadastroUsuario.css';
 
-// Interface com os campos esperados pelo backend de usuários
 interface UsuarioFormData {
   id?: number;
   nome: string;
   email: string;
+<<<<<<< HEAD
+  senha_hash: string;
+=======
   senha?: string;
   telefone: string;
+>>>>>>> 33cfd22901eeb030e8906520f984d7e87d73ee7e
   tipo_usuario: string;
-  status_ativo: boolean;
 }
 
-const EdicaoUsuario: React.FC = () => {
+const EditarUsuario: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   
-  // Inicialização do estado com os campos do backend
+  const usuarioId = id ? parseInt(id, 10) : 0;
+  
   const [formData, setFormData] = useState<UsuarioFormData>({
     nome: '',
     email: '',
-    senha: '',
-    telefone: '',
+    senha_hash: '',
     tipo_usuario: '',
-    status_ativo: true,
   });
 
   const [confirmarSenha, setConfirmarSenha] = useState('');
   const [activeTab, setActiveTab] = useState('dados-basicos');
-  const [imagePreview, setImagePreview] = useState<string | null>(null);
-  const [modoEdicao, setModoEdicao] = useState(false);
   const [carregando, setCarregando] = useState(true);
   const [erro, setErro] = useState<string | null>(null);
 
-  // Carregar dados do usuário ao inicializar o componente
   useEffect(() => {
     const carregarUsuario = async () => {
       try {
+        setCarregando(true);
+        
+        if (!usuarioId || isNaN(usuarioId)) {
+          setErro('ID do usuário inválido');
+          setCarregando(false);
+          return;
+        }
+
         const token = localStorage.getItem('token');
+        
         if (!token) {
           alert('Você não está autenticado. Por favor, faça login.');
           navigate('/login');
@@ -54,36 +61,51 @@ const EdicaoUsuario: React.FC = () => {
           },
         };
 
-        const response = await axios.get(`http://localhost:3000/usuarios/${id}`, config);
-        const usuario = response.data;
+        console.log('Carregando usuário com ID:', usuarioId);
         
+        const response = await axios.get(`http://localhost:3000/usuarios/${usuarioId}`, config);
+        const usuario = response.data;
+
+        console.log('Dados do usuário recebidos:', usuario);
+
         setFormData({
           nome: usuario.nome || '',
           email: usuario.email || '',
-          senha: '', // Não carregamos a senha por segurança
-          telefone: usuario.telefone || '',
+          senha_hash: '', // Não carregamos a senha por segurança
           tipo_usuario: usuario.tipo_usuario || '',
-          status_ativo: usuario.status_ativo !== undefined ? usuario.status_ativo : true,
         });
-        
+
         setCarregando(false);
       } catch (error) {
         console.error('Erro ao carregar usuário:', error);
-        setErro('Não foi possível carregar os dados do usuário.');
+        if (axios.isAxiosError(error) && error.response) {
+          if (error.response.status === 401) {
+            alert('Sessão expirada. Por favor, faça login novamente.');
+            navigate('/login');
+          } else if (error.response.status === 404) {
+            alert('Usuário não encontrado.');
+            navigate('/usuarios');
+          } else {
+            alert(`Erro ao carregar: ${error.response.status} - ${error.response.data.message}`);
+          }
+        } else {
+          alert('Erro ao carregar usuário. Verifique o console.');
+        }
         setCarregando(false);
       }
     };
 
-    if (id) {
+    if (usuarioId) {
       carregarUsuario();
     }
-  }, [id, navigate]);
+  }, [usuarioId, navigate]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-    const { id, value, type } = e.target;
+    const { id, value } = e.target;
+    
     setFormData({
       ...formData,
-      [id]: type === 'checkbox' ? (e.target as HTMLInputElement).checked : value,
+      [id]: value,
     });
   };
 
@@ -91,6 +113,8 @@ const EdicaoUsuario: React.FC = () => {
     setConfirmarSenha(e.target.value);
   };
 
+<<<<<<< HEAD
+=======
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
@@ -138,17 +162,31 @@ const EdicaoUsuario: React.FC = () => {
     }
   };
 
+>>>>>>> 33cfd22901eeb030e8906520f984d7e87d73ee7e
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    // Verificar se as senhas coincidem (apenas se uma nova senha foi fornecida)
-    if (formData.senha && formData.senha !== confirmarSenha) {
+    if (formData.senha_hash && formData.senha_hash !== confirmarSenha) {
       alert('As senhas não coincidem!');
       return;
     }
 
+    if (formData.senha_hash && formData.senha_hash.length < 6) {
+      alert('A senha deve ter no mínimo 6 caracteres!');
+      return;
+    }
+
     try {
+<<<<<<< HEAD
+      if (!usuarioId || isNaN(usuarioId)) {
+        alert('ID do usuário inválido');
+        return;
+      }
+
+      const apiURL = `http://localhost:3000/usuarios/${usuarioId}`;
+=======
       const apiURL = `${import.meta.env.VITE_URL_BACKEND || 'http://localhost:3000'}/usuarios/${id}`;
+>>>>>>> 33cfd22901eeb030e8906520f984d7e87d73ee7e
       const token = localStorage.getItem('token');
 
       if (!token) {
@@ -164,11 +202,18 @@ const EdicaoUsuario: React.FC = () => {
       };
 
       // Preparar dados para envio - se a senha estiver vazia, não a enviamos
-      const dadosParaEnvio = { ...formData };
-      if (!dadosParaEnvio.senha) {
-        delete dadosParaEnvio.senha;
+      const dadosParaEnvio: any = { 
+        nome: formData.nome,
+        email: formData.email,
+        tipo_usuario: formData.tipo_usuario
+      };
+      
+      // Só envia a senha se foi preenchida
+      if (formData.senha_hash) {
+        dadosParaEnvio.senha_hash = formData.senha_hash;
       }
 
+      console.log("Enviando para:", apiURL);
       console.log("Payload enviado:", dadosParaEnvio);
       
       const response = await axios.put(apiURL, dadosParaEnvio, config);
@@ -176,8 +221,7 @@ const EdicaoUsuario: React.FC = () => {
       console.log('Usuário atualizado com sucesso:', response.data);
       alert('Usuário atualizado com sucesso!');
       
-      // Sair do modo de edição após salvar
-      setModoEdicao(false);
+      navigate('/usuarios');
 
     } catch (error) {
       if (axios.isAxiosError(error) && error.response) {
@@ -186,6 +230,9 @@ const EdicaoUsuario: React.FC = () => {
           navigate('/login');
         } else if (error.response.status === 403) {
           alert('Você não tem permissão para realizar esta ação.');
+        } else if (error.response.status === 400) {
+          console.error('Erro de validação:', error.response.data);
+          alert(`Erro de validação: ${JSON.stringify(error.response.data)}`);
         } else {
           alert(`Erro ao atualizar: ${error.response.status} - ${error.response.data.message}`);
         }
@@ -199,7 +246,24 @@ const EdicaoUsuario: React.FC = () => {
   if (carregando) {
     return (
       <div className="cadastro-container">
-        <div className="loading">Carregando...</div>
+        <div style={{ 
+          display: 'flex', 
+          justifyContent: 'center', 
+          alignItems: 'center', 
+          height: '50vh',
+          flexDirection: 'column',
+          gap: '20px'
+        }}>
+          <div className="spinner" style={{
+            width: '40px',
+            height: '40px',
+            border: '4px solid #f3f3f3',
+            borderTop: '4px solid #1D4ED8',
+            borderRadius: '50%',
+            animation: 'spin 1s linear infinite'
+          }}></div>
+          <p>Carregando dados do usuário...</p>
+        </div>
       </div>
     );
   }
@@ -221,45 +285,16 @@ const EdicaoUsuario: React.FC = () => {
     <div className="cadastro-container">
       <div className="cadastro-header">
         <button className="back-button" onClick={() => navigate('/usuarios')}>
-          <FiArrowLeft size={20}  />
+          <FiArrowLeft size={20} />
           Voltar
         </button>
         <h1 className="cadastro-title">
           <FiUser className="icon-title" />
-          {modoEdicao ? 'Editando Usuário' : 'Detalhes do Usuário'}
+          Editar Usuário
         </h1>
-        <button 
-          className={`edit-toggle-button ${modoEdicao ? 'cancel' : 'edit'}`}
-          onClick={toggleModoEdicao}
-        >
-          <FaEdit className="button-icon" />
-          {modoEdicao ? 'Cancelar Edição' : 'Editar Usuário'}
-        </button>
       </div>
 
       <div className="cadastro-content">
-        <div className="photo-section">
-          <div className="photo-upload">
-            {imagePreview ? (
-              <img src={imagePreview} alt="Preview" className="photo-preview" />
-            ) : (
-              <FaUserCircle className="photo-placeholder" />
-            )}
-            <label htmlFor="file-upload" className="upload-button" style={!modoEdicao ? {display: 'none'} : {}}>
-              <FaCamera className="camera-icon" />
-              Alterar Imagem
-            </label>
-            <input
-              id="file-upload"
-              type="file"
-              accept="image/*"
-              onChange={handleImageUpload}
-              style={{ display: 'none' }}
-              disabled={!modoEdicao}
-            />
-          </div>
-        </div>
-
         <div className="form-section">
           <div className="tabs">
             <button 
@@ -291,7 +326,6 @@ const EdicaoUsuario: React.FC = () => {
                     onChange={handleInputChange}
                     className="input-field"
                     required
-                    disabled={!modoEdicao}
                   />
                 </div>
 
@@ -307,23 +341,6 @@ const EdicaoUsuario: React.FC = () => {
                     onChange={handleInputChange}
                     className="input-field"
                     required
-                    disabled={!modoEdicao}
-                  />
-                </div>
-
-                <div className="input-group">
-                  <label htmlFor="telefone" className="input-label">
-                    <FiPhone className="input-icon" />
-                    Telefone
-                  </label>
-                  <input
-                    type="tel"
-                    id="telefone"
-                    value={formData.telefone}
-                    onChange={handleInputChange}
-                    className="input-field"
-                    placeholder="(00) 00000-0000"
-                    disabled={!modoEdicao}
                   />
                 </div>
 
@@ -338,7 +355,6 @@ const EdicaoUsuario: React.FC = () => {
                     onChange={handleInputChange}
                     className="input-field"
                     required
-                    disabled={!modoEdicao}
                   >
                     <option value="">Selecione</option>
                     <option value="admin">Administrador</option>
@@ -353,19 +369,22 @@ const EdicaoUsuario: React.FC = () => {
             {activeTab === 'acesso' && (
               <div className="form-grid">
                 <div className="input-group">
-                  <label htmlFor="senha" className="input-label">
+                  <label htmlFor="senha_hash" className="input-label">
                     <FiLock className="input-icon" />
                     Nova Senha
                   </label>
                   <input
                     type="password"
-                    id="senha"
-                    value={formData.senha}
+                    id="senha_hash"
+                    value={formData.senha_hash}
                     onChange={handleInputChange}
                     className="input-field"
-                    placeholder={modoEdicao ? "Deixe em branco para manter a atual" : "••••••••"}
-                    disabled={!modoEdicao}
+                    placeholder="Deixe em branco para manter a atual"
+                    minLength={6}
                   />
+                  <small style={{ color: '#666', fontSize: '12px', marginTop: '5px' }}>
+                    Deixe em branco para manter a senha atual
+                  </small>
                 </div>
 
                 <div className="input-group">
@@ -379,36 +398,35 @@ const EdicaoUsuario: React.FC = () => {
                     value={confirmarSenha}
                     onChange={handleConfirmarSenhaChange}
                     className="input-field"
-                    placeholder={modoEdicao ? "Repita a nova senha" : "••••••••"}
-                    disabled={!modoEdicao}
+                    placeholder="Repita a nova senha"
+                    minLength={6}
                   />
                 </div>
-
-                <div className="input-group">
-                  <label htmlFor="status_ativo" className="checkbox-label">
-                    <input
-                      type="checkbox"
-                      id="status_ativo"
-                      checked={formData.status_ativo}
-                      onChange={handleInputChange}
-                      className="checkbox-input"
-                      disabled={!modoEdicao}
-                    />
-                    <span className="checkbox-custom"></span>
-                    Usuário Ativo
-                  </label>
-                </div>
               </div>
             )}
 
-            {modoEdicao && (
-              <div className="form-actions">
-                <button type="submit" className="submit-button">
-                  <FaSave className="button-icon" />
-                  Salvar Alterações
-                </button>
-              </div>
-            )}
+            <div className="form-actions">
+              <button 
+                type="button" 
+                className="btn-cancelar"
+                onClick={() => navigate('/usuarios')}
+                style={{
+                  padding: '12px 25px',
+                  background: '#6c757d',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '8px',
+                  cursor: 'pointer',
+                  marginRight: '15px'
+                }}
+              >
+                Cancelar
+              </button>
+              <button type="submit" className="submit-button">
+                <FaSave className="button-icon" />
+                Salvar Alterações
+              </button>
+            </div>
           </form>
         </div>
       </div>
@@ -416,4 +434,4 @@ const EdicaoUsuario: React.FC = () => {
   );
 };
 
-export default EdicaoUsuario;
+export default EditarUsuario;

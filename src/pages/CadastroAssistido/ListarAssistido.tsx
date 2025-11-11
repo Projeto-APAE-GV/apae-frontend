@@ -17,7 +17,7 @@ import {
 } from "react-icons/fa";
 
 interface Assistido {
-  id: number;
+  id_assistido: number;
   nome: string;
   cpf: string;
   telefone: string;
@@ -44,11 +44,11 @@ function ListaAssistidos() {
     }
   };
 
-  const excluirAssistido = async (id: number) => {
+  const excluirAssistido = async (id_assistido: number) => {
     if (!confirm("Tem certeza que deseja excluir este assistido?")) return;
     try {
-      await api.delete(`/assistidos/${id}`);
-      setAssistidos((prev) => prev.filter((a) => a.id !== id));
+      await api.delete(`/assistidos/${id_assistido}`);
+      setAssistidos((prev) => prev.filter((a) => a.id_assistido !== id_assistido));
     } catch (err) {
       alert("Erro ao excluir assistido");
     }
@@ -81,7 +81,7 @@ function ListaAssistidos() {
             <div>
               <h1 className="text-2xl font-bold text-gray-800 flex items-center gap-2">
                 <FaUserCircle className="text-blue-600" />
-                Gestão de Assisitidos
+                Gestão de Assistidos
               </h1>
             </div>
 
@@ -110,7 +110,6 @@ function ListaAssistidos() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div className="relative">
               <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <FaSearch className="text-gray-400" />
               </div>
               <input
                 type="text"
@@ -185,7 +184,7 @@ function ListaAssistidos() {
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200">
                   {filtrados.map((a) => (
-                    <tr key={a.id} className="hover:bg-gray-50 transition-colors">
+                    <tr key={a.id_assistido} className="hover:bg-gray-50 transition-colors">
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="flex items-center">
                           <div className="flex-shrink-0 h-10 w-10 bg-blue-100 rounded-full flex items-center justify-center">
@@ -219,14 +218,14 @@ function ListaAssistidos() {
                       <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                         <div className="flex space-x-2">
                           <button
-                            onClick={() => navigate(`/editar-assistido/${a.id}`)}
+                            onClick={() => navigate(`/editar-assistido/${a.id_assistido}`)}
                             className="text-green-600 hover:text-green-900 p-1 rounded hover:bg-green-50"
                             title="Editar assistido"
                           >
                             <FaEdit />
                           </button>
                           <button
-                            onClick={() => excluirAssistido(a.id)}
+                            onClick={() => excluirAssistido(a.id_assistido)}
                             className="text-red-600 hover:text-red-900 p-1 rounded hover:bg-red-50"
                             title="Excluir assistido"
                           >

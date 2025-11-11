@@ -3,8 +3,9 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import Login from './pages/login/Login';
 import Dashboard from './pages/dashboard/Dashboard';
 import CadastroUsuario from './pages/cadastroUsuario/CadastroUsuario';
-import EdicaoUsuario from './pages/cadastroUsuario/EditarUsuario';
+import EditarUsuario from './pages/cadastroUsuario/EditarUsuario';
 import ListarUsuario from './pages/cadastroUsuario/ListaUsuario';
+import ExclusaoPerguntas from './pages/fichaProntuario/ExclusaoPerguntas';
 import FichaProntuario from './pages/fichaProntuario/FichaProntuario';
 import CadastroPergunta from './pages/fichaProntuario/CadastroPergunta';
 import EditarAssistido from './pages/CadastroAssistido/EditarAssistido';
@@ -33,13 +34,14 @@ const App: React.FC = () => {
                         <Route index element={<Navigate to="/cadastro-assistido" replace />} />
                         <Route path="cadastro-usuario" element={<CadastroUsuario />} />
                         <Route path="lista-usuario" element={<ListarUsuario />} />
-                        <Route path="/editar-usuario/:id" element={<EdicaoUsuario />} />
+                        <Route path="/editar-usuario/:id" element={<EditarUsuario />} />
                         <Route path="cadastro-assistido" element={<ListaAssistidos />} />
                         <Route path="/assistidos/cadastro" element={<CadastroAssistido />} />
                         <Route path="/editar-assistido/:id" element={<EditarAssistido />} />
                         <Route path="/ficha-prontuario" element={<FichaProntuario />} />
                         <Route path="/ficha-assistido/:id" element={<FichaAssistido />} />
                         <Route path="/cadastro-pergunta" element={<CadastroPergunta />} />
+                        <Route path="/excluir-perguntas" element={<ExclusaoPerguntas />} />
                         <Route path="relatorio" element={<Relatorio />} />
                     </Route>
 
