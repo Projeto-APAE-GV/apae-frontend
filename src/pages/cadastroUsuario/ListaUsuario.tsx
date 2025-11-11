@@ -8,7 +8,6 @@ import {
   FaTrash,
   FaUser,
   FaPhone,
-  FaIdCard,
   FaUserCircle,
   FaFilter,
   FaSync,
@@ -16,7 +15,7 @@ import {
 } from "react-icons/fa";
 
 interface Usuario {
-  id: number;
+  id_usuario: number;
   nome: string;
   email: string;
   telefone: string;
@@ -43,18 +42,14 @@ function ListaUsuarios() {
     }
   };
 
-  const excluirUsuario = async (id: number) => {
+  const excluirUsuario = async (id_usuario: number) => {
     if (!confirm("Tem certeza que deseja excluir este usuário?")) return;
     try {
-      await api.delete(`/usuarios/${id}`);
-      setUsuarios((prev) => prev.filter((u) => u.id !== id));
+      await api.delete(`/usuarios/${id_usuario}`);
+      setUsuarios((prev) => prev.filter((u) => u.id_usuario !== id_usuario));
     } catch (err) {
       alert("Erro ao excluir usuário");
     }
-  };
-
-  const editarUsuario = (id: number) => {
-    navigate(`/editar-usuario/${id}`);
   };
 
   useEffect(() => {
@@ -97,13 +92,13 @@ function ListaUsuarios() {
                 Atualizar
               </button>
 
-              <button
-                onClick={() => navigate("/cadastro-usuario")}
+              <Link
+                to="/cadastro-usuario"
                 className="flex items-center justify-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
               >
                 <FaPlus />
                 Novo Usuário
-              </button>
+              </Link>
             </div>
           </div>
         </div>
@@ -188,7 +183,7 @@ function ListaUsuarios() {
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200">
                   {filtrados.map((u) => (
-                    <tr key={u.id} className="hover:bg-gray-50 transition-colors">
+                    <tr key={u.id_usuario} className="hover:bg-gray-50 transition-colors">
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="flex items-center">
                           <div className="flex-shrink-0 h-10 w-10 bg-blue-100 rounded-full flex items-center justify-center">
@@ -224,15 +219,15 @@ function ListaUsuarios() {
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                         <div className="flex space-x-2">
-                           <button
-                            onClick={() => navigate(`/editar-usuario/${a.id_usuario}`)}
+                          <button
+                            onClick={() => navigate(`/editar-usuario/${u.id_usuario}`)}
                             className="text-green-600 hover:text-green-900 p-1 rounded hover:bg-green-50"
                             title="Editar usuário"
                           >
                             <FaEdit />
                           </button>
                           <button
-                            onClick={() => excluirUsuario(u.id)}
+                            onClick={() => excluirUsuario(u.id_usuario)}
                             className="text-red-600 hover:text-red-900 p-1 rounded hover:bg-red-50"
                             title="Excluir usuário"
                           >

@@ -11,10 +11,13 @@ interface Categoria {
   ativa: boolean;
 }
 
+// Valores corretos baseados no enum do Prisma (em minúsculas)
+type TipoResposta = 'texto' | 'numero' | 'multipla_escolha' | 'data' | 'boolean';
+
 interface PerguntaFormData {
   texto_pergunta: string;
   id_categoria: number;
-  tipo_resposta: 'texto' | 'numero' | 'opcoes' | 'data' | 'boolean';
+  tipo_resposta: TipoResposta;
   opcoes_resposta: string[];
   obrigatoria: boolean;
   ordem_categoria: number;
@@ -31,7 +34,7 @@ const CadastroPergunta: React.FC = () => {
   const [formData, setFormData] = useState<PerguntaFormData>({
     texto_pergunta: '',
     id_categoria: 0,
-    tipo_resposta: 'texto',
+    tipo_resposta: 'texto', // Valor padrão em minúsculas
     opcoes_resposta: [],
     obrigatoria: false,
     ordem_categoria: 1,
@@ -44,13 +47,12 @@ const CadastroPergunta: React.FC = () => {
       try {
         setCarregando(true);
         const res = await api.get('/categorias');
-        // Filtrar apenas categorias ativas
         const categoriasAtivas = res.data.filter((cat: Categoria) => cat.ativa);
         setCategorias(categoriasAtivas);
         setCarregando(false);
       } catch (err) {
         console.error('Erro ao carregar categorias:', err);
-        alert('Erro ao carregar categorias. Verifique o console.');
+        alert('Erro ao carregar categorias.');
         setCarregando(false);
       }
     };
@@ -75,17 +77,41 @@ const CadastroPergunta: React.FC = () => {
   };
 
   const handleTipoRespostaChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const tipo = e.target.value as PerguntaFormData['tipo_resposta'];
+    const valorDisplay = e.target.value;
+    
+    // Mapeamento correto para os valores do enum
+    const mapeamento: { [key: string]: TipoResposta } = {
+      'texto': 'texto',
+      'numero': 'numero',
+      'opcoes': 'multipla_escolha', // "opcoes" no display vira "multipla_escolha" no enum
+      'data': 'data',
+      'boolean': 'boolean'
+    };
+    
+    const tipoResposta = mapeamento[valorDisplay] || 'texto';
+    
+    console.log('Tipo resposta selecionado:', { valorDisplay, tipoResposta });
+    
     setFormData({
       ...formData,
-      tipo_resposta: tipo,
-      // Limpar opções se não for do tipo opcoes
-      opcoes_resposta: tipo !== 'opcoes' ? [] : formData.opcoes_resposta
+      tipo_resposta: tipoResposta,
+      opcoes_resposta: tipoResposta !== 'multipla_escolha' ? [] : formData.opcoes_resposta
     });
   };
 
+  const getDisplayTipoResposta = (tipo: TipoResposta): string => {
+    const mapeamento: { [key in TipoResposta]: string } = {
+      'texto': 'texto',
+      'numero': 'numero',
+      'multipla_escolha': 'opcoes', // No display mostramos "opcoes" mas internamente é "multipla_escolha"
+      'data': 'data',
+      'boolean': 'boolean'
+    };
+    return mapeamento[tipo];
+  };
+
   const handleAdicionarOpcao = () => {
-    if (opcoesTemp.trim() && formData.tipo_resposta === 'opcoes') {
+    if (opcoesTemp.trim() && formData.tipo_resposta === 'multipla_escolha') {
       setFormData({
         ...formData,
         opcoes_resposta: [...formData.opcoes_resposta, opcoesTemp.trim()]
@@ -116,7 +142,7 @@ const CadastroPergunta: React.FC = () => {
       return;
     }
     
-    if (formData.tipo_resposta === 'opcoes' && formData.opcoes_resposta.length < 2) {
+    if (formData.tipo_resposta === 'multipla_escolha' && formData.opcoes_resposta.length < 2) {
       alert('Para perguntas de opção, é necessário pelo menos 2 opções.');
       return;
     }
@@ -124,30 +150,28 @@ const CadastroPergunta: React.FC = () => {
     setSalvando(true);
 
     try {
-      // Preparar payload para enviar
       const payload = {
         texto_pergunta: formData.texto_pergunta.trim(),
         id_categoria: formData.id_categoria,
-        tipo_resposta: formData.tipo_resposta,
-        opcoes_resposta: formData.tipo_resposta === 'opcoes' ? formData.opcoes_resposta : undefined,
+        tipo_resposta: formData.tipo_resposta, // Já está no formato correto
+        opcoes_resposta: formData.tipo_resposta === 'multipla_escolha' ? formData.opcoes_resposta : [],
         obrigatoria: formData.obrigatoria,
         ordem_categoria: formData.ordem_categoria,
         ativa: formData.ativa
       };
 
+      console.log('🔍 Enviando payload:', payload);
+
       await api.post('/perguntas', payload);
       alert('Pergunta cadastrada com sucesso!');
-      
-      // Redirecionar para a ficha do assistido ou para lista de perguntas
       navigate('/ficha-prontuario');
       
     } catch (err: any) {
-      console.error('Erro ao cadastrar pergunta:', err);
-      if (err.response) {
-        alert(`Erro ao cadastrar: ${err.response.status} - ${err.response.data.message}`);
-      } else {
-        alert('Erro ao cadastrar pergunta. Verifique o console.');
-      }
+      console.error('❌ Erro ao cadastrar pergunta:', err);
+      console.error('📋 Detalhes do erro:', err.response?.data);
+      
+      const mensagemErro = err.response?.data?.message || 'Erro desconhecido';
+      alert(`Erro ao cadastrar: ${err.response?.status} - ${mensagemErro}`);
     } finally {
       setSalvando(false);
     }
@@ -220,7 +244,7 @@ const CadastroPergunta: React.FC = () => {
             <select
               id="tipo_resposta"
               name="tipo_resposta"
-              value={formData.tipo_resposta}
+              value={getDisplayTipoResposta(formData.tipo_resposta)}
               onChange={handleTipoRespostaChange}
               className="input-field"
               required
@@ -231,6 +255,9 @@ const CadastroPergunta: React.FC = () => {
               <option value="data">Data</option>
               <option value="boolean">Sim/Não</option>
             </select>
+            <small style={{ color: '#666', fontSize: '12px', marginTop: '5px', display: 'block' }}>
+              Valor interno: <strong>{formData.tipo_resposta}</strong>
+            </small>
           </div>
 
           <div className="input-group">
@@ -249,7 +276,7 @@ const CadastroPergunta: React.FC = () => {
             />
           </div>
 
-          {formData.tipo_resposta === 'opcoes' && (
+          {formData.tipo_resposta === 'multipla_escolha' && (
             <div className="input-group full-width">
               <label className="input-label">Opções de Resposta *</label>
               <div className="opcoes-container">

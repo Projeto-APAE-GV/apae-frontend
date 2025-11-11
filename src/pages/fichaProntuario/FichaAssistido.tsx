@@ -16,7 +16,7 @@ interface Pergunta {
   id_pergunta: number;
   id_categoria: number;
   texto_pergunta: string;
-  tipo_resposta: 'texto' | 'numero' | 'opcoes' | 'data' | 'boolean' | 'sexo';
+  tipo_resposta: 'texto' | 'numero' | 'multipla_escolha' | 'data' | 'boolean'; // CORRIGIDO: multipla_escolha em vez de opcoes
   opcoes_resposta?: string[];
   obrigatoria: boolean;
   ordem_categoria: number;
@@ -91,6 +91,8 @@ const FichaAssistido: React.FC = () => {
             try {
               const resPerguntas = await api.get(`/perguntas/categoria/${categoria.id_categoria}`);
               const perguntas: Pergunta[] = resPerguntas.data;
+              
+              console.log(`Perguntas da categoria ${categoria.nome_categoria}:`, perguntas); // DEBUG
               
               // Filtrar apenas perguntas ativas e ordenar pela ordem_categoria
               const perguntasAtivas = perguntas
@@ -193,10 +195,10 @@ const FichaAssistido: React.FC = () => {
       id_pergunta
     };
 
+    // CORRIGIDO: Usar multipla_escolha em vez de opcoes
     switch (tipo_resposta) {
       case 'texto':
-      case 'opcoes':
-      case 'sexo':
+      case 'multipla_escolha': // CORRIGIDO
         return {
           ...dadosBase,
           resposta_texto: resposta
@@ -547,7 +549,8 @@ const FichaAssistido: React.FC = () => {
                       />
                     )}
                     
-                    {pergunta.tipo_resposta === 'opcoes' && pergunta.opcoes_resposta && (
+                    {/* CORRIGIDO: Usar multipla_escolha em vez de opcoes */}
+                    {pergunta.tipo_resposta === 'multipla_escolha' && pergunta.opcoes_resposta && (
                       <select
                         id={`pergunta-${pergunta.id_pergunta}`}
                         value={respostas[pergunta.id_pergunta] || ''}
@@ -575,22 +578,6 @@ const FichaAssistido: React.FC = () => {
                         <option value="">Selecione</option>
                         <option value="true">Sim</option>
                         <option value="false">Não</option>
-                      </select>
-                    )}
-                    
-                    {pergunta.tipo_resposta === 'sexo' && (
-                      <select
-                        id={`pergunta-${pergunta.id_pergunta}`}
-                        value={respostas[pergunta.id_pergunta] || ''}
-                        onChange={(e) => handleInputChange(pergunta.id_pergunta, e.target.value)}
-                        className="input-field"
-                        required={pergunta.obrigatoria}
-                      >
-                        <option value="">Selecione o sexo</option>
-                        <option value="Masculino">Masculino</option>
-                        <option value="Feminino">Feminino</option>
-                        <option value="Outro">Outro</option>
-                        <option value="Prefiro não informar">Prefiro não informar</option>
                       </select>
                     )}
                     

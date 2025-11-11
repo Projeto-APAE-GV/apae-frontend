@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../../services/api';
-import { FaUser, FaPlus, FaSearch } from 'react-icons/fa';
+import { FaUser, FaPlus, FaSearch, FaTrash } from 'react-icons/fa';
 import { FiArrowLeft } from 'react-icons/fi';
 import './FichaProntuario.css';
 
@@ -79,8 +79,8 @@ const FichaProntuario: React.FC = () => {
       <div className="acoes-superiores">
         <div className="pesquisa-container">
           <div className="pesquisa-input">
-            <FaSearch className="pesquisa-icon" />
             <input
+            
               type="text"
               placeholder="Pesquisar por nome ou CPF..."
               value={termoPesquisa}
@@ -88,10 +88,13 @@ const FichaProntuario: React.FC = () => {
             />
           </div>
         </div>
-        
+
         <div className="botoes-acoes">
           <button className="btn-cadastrar-pergunta" onClick={handleCadastrarPergunta}>
             <FaPlus /> Cadastrar Pergunta
+          </button>
+          <button className="btn-gerenciar-perguntas" onClick={() => navigate('/excluir-perguntas')}>
+            <FaTrash /> Gerenciar Perguntas
           </button>
         </div>
       </div>
@@ -99,15 +102,15 @@ const FichaProntuario: React.FC = () => {
       <div className="assistidos-lista">
         {assistidosFiltrados.length > 0 ? (
           assistidosFiltrados.map(assistido => (
-            <div 
-              key={assistido.id} 
+            <div
+              key={assistido.id}
               className="assistido-card"
               onClick={() => handleSelecionarAssistido(assistido)}
             >
               <div className="assistido-avatar">
                 <FaUser size={24} />
               </div>
-              
+
               <div className="assistido-info">
                 <h3>{assistido.nome}</h3>
                 <p>CPF: {assistido.cpf}</p>
@@ -116,7 +119,7 @@ const FichaProntuario: React.FC = () => {
                   {assistido.status_ativo ? 'Ativo' : 'Inativo'}
                 </span>
               </div>
-              
+
               <div className="assistido-acao">
                 <span className="btn-selecionar">Selecionar</span>
               </div>
