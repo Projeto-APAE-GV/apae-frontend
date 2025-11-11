@@ -219,8 +219,13 @@ function ListaUsuarios() {
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                         <div className="flex space-x-2">
+<<<<<<< HEAD
                           <button
                             onClick={() => navigate(`/editar-usuario/${u.id_usuario}`)}
+=======
+                           <button
+                            onClick={() => navigate(`/editar-usuario/${u.id}`)}
+>>>>>>> 33cfd22901eeb030e8906520f984d7e87d73ee7e
                             className="text-green-600 hover:text-green-900 p-1 rounded hover:bg-green-50"
                             title="Editar usuário"
                           >
