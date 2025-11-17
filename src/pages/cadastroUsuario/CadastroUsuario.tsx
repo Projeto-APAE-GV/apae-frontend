@@ -50,7 +50,7 @@ const CadastroUsuario: React.FC = () => {
     }
 
     try {
-      const apiURL = `${import.meta.env.VITE_URL_BACKEND || 'http://localhost:3000'}/usuarios`;
+      const apiURL = 'http://localhost:3000/usuarios';
       const token = localStorage.getItem('token');
 
       if (!token) {

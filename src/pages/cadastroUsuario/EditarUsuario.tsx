@@ -9,12 +9,7 @@ interface UsuarioFormData {
   id?: number;
   nome: string;
   email: string;
-<<<<<<< HEAD
   senha_hash: string;
-=======
-  senha?: string;
-  telefone: string;
->>>>>>> 33cfd22901eeb030e8906520f984d7e87d73ee7e
   tipo_usuario: string;
 }
 
@@ -113,56 +108,6 @@ const EditarUsuario: React.FC = () => {
     setConfirmarSenha(e.target.value);
   };
 
-<<<<<<< HEAD
-=======
-  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setImagePreview(reader.result as string);
-      };
-      reader.readAsDataURL(file);
-    }
-  };
-
-  const toggleModoEdicao = () => {
-    setModoEdicao(!modoEdicao);
-    // Se estiver saindo do modo edição, recarregar os dados originais
-    if (modoEdicao) {
-      // Recarregar dados do usuário
-      const carregarUsuario = async () => {
-        try {
-          const token = localStorage.getItem('token');
-          const config = {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          };
-
-          const response = await axios.get(`${import.meta.env.VITE_URL_BACKEND || 'http://localhost:3000'}/usuarios/${id}`, config);
-          const usuario = response.data;
-          
-          setFormData({
-            nome: usuario.nome || '',
-            email: usuario.email || '',
-            senha: '', // Não carregamos a senha por segurança
-            telefone: usuario.telefone || '',
-            tipo_usuario: usuario.tipo_usuario || '',
-            status_ativo: usuario.status_ativo !== undefined ? usuario.status_ativo : true,
-          });
-          
-          setConfirmarSenha('');
-        } catch (error) {
-          console.error('Erro ao recarregar usuário:', error);
-        }
-      };
-
-      carregarUsuario();
-    }
-  };
-
->>>>>>> 33cfd22901eeb030e8906520f984d7e87d73ee7e
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -171,22 +116,8 @@ const EditarUsuario: React.FC = () => {
       return;
     }
 
-    if (formData.senha_hash && formData.senha_hash.length < 6) {
-      alert('A senha deve ter no mínimo 6 caracteres!');
-      return;
-    }
-
     try {
-<<<<<<< HEAD
-      if (!usuarioId || isNaN(usuarioId)) {
-        alert('ID do usuário inválido');
-        return;
-      }
-
-      const apiURL = `http://localhost:3000/usuarios/${usuarioId}`;
-=======
       const apiURL = `${import.meta.env.VITE_URL_BACKEND || 'http://localhost:3000'}/usuarios/${id}`;
->>>>>>> 33cfd22901eeb030e8906520f984d7e87d73ee7e
       const token = localStorage.getItem('token');
 
       if (!token) {
