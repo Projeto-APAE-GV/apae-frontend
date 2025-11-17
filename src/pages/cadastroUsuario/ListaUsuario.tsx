@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import api from "../../services/api";
 import {
   FaSearch,
@@ -7,21 +7,20 @@ import {
   FaEdit,
   FaTrash,
   FaUser,
-  FaPhone,
-  FaIdCard,
   FaUserCircle,
   FaFilter,
   FaSync,
   FaEnvelope
 } from "react-icons/fa";
+import "./ListaUsuario.css";
 
 interface Usuario {
-  id: number;
+  id_usuario: number;
   nome: string;
   email: string;
-  telefone: string;
-  perfil: string;
-  status_ativo: boolean;
+  tipo_usuario: string;
+  ativo: boolean;
+  data_criacao: string;
 }
 
 function ListaUsuarios() {
@@ -37,24 +36,47 @@ function ListaUsuarios() {
       const { data } = await api.get("/usuarios");
       setUsuarios(data);
     } catch (err) {
+      console.error("Erro ao carregar usuários:", err);
       alert("Erro ao carregar usuários");
     } finally {
       setIsLoading(false);
     }
   };
 
-  const excluirUsuario = async (id: number) => {
+  const excluirUsuario = async (id_usuario: number) => {
     if (!confirm("Tem certeza que deseja excluir este usuário?")) return;
     try {
-      await api.delete(`/usuarios/${id}`);
-      setUsuarios((prev) => prev.filter((u) => u.id !== id));
+      await api.delete(`/usuarios/${id_usuario}`);
+      setUsuarios((prev) => prev.filter((u) => u.id_usuario !== id_usuario));
+      alert("Usuário excluído com sucesso!");
     } catch (err) {
+      console.error("Erro ao excluir usuário:", err);
       alert("Erro ao excluir usuário");
     }
   };
 
-  const editarUsuario = (id: number) => {
-    navigate(`/editar-usuario/${id}`);
+  const toggleStatusUsuario = async (usuario: Usuario) => {
+    const novoStatus = !usuario.ativo;
+    const acao = novoStatus ? "ativar" : "inativar";
+    
+    if (!confirm(`Tem certeza que deseja ${acao} o usuário ${usuario.nome}?`)) return;
+    
+    try {
+      await api.put(`/usuarios/${usuario.id_usuario}`, {
+        ativo: novoStatus
+      });
+      
+      setUsuarios(prev => prev.map(u => 
+        u.id_usuario === usuario.id_usuario 
+          ? { ...u, ativo: novoStatus }
+          : u
+      ));
+      
+      alert(`Usuário ${acao === "ativar" ? "ativado" : "inativado"} com sucesso!`);
+    } catch (err) {
+      console.error(`Erro ao ${acao} usuário:`, err);
+      alert(`Erro ao ${acao} usuário`);
+    }
   };
 
   useEffect(() => {
@@ -65,71 +87,92 @@ function ListaUsuarios() {
     const matchesSearch =
       u.nome.toLowerCase().includes(search.toLowerCase()) ||
       u.email.toLowerCase().includes(search.toLowerCase()) ||
-      u.perfil.toLowerCase().includes(search.toLowerCase());
+      u.tipo_usuario.toLowerCase().includes(search.toLowerCase());
 
     const matchesStatus =
       statusFilter === "all" ||
-      (statusFilter === "active" && u.status_ativo) ||
-      (statusFilter === "inactive" && !u.status_ativo);
+      (statusFilter === "active" && u.ativo) ||
+      (statusFilter === "inactive" && !u.ativo);
 
     return matchesSearch && matchesStatus;
   });
 
+  const formatarData = (dataString: string) => {
+    return new Date(dataString).toLocaleDateString('pt-BR');
+  };
+
+  const traduzirTipoUsuario = (tipo: string) => {
+    const tipos: { [key: string]: string } = {
+      'admin': 'Administrador',
+      'secretaria': 'Secretária',
+      'psicologa': 'Psicóloga',
+      'assistente': 'Assistente'
+    };
+    return tipos[tipo] || tipo;
+  };
+
   return (
-    <div className="min-h-screen bg-gray-50 p-6">
-      <div className="max-w-7xl mx-auto">
+    <div className="lista-container">
+      <div className="container-max">
         {/* Header */}
-        <div className="bg-white rounded-xl shadow-sm p-6 mb-6">
-          <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-            <div>
-              <h1 className="text-2xl font-bold text-gray-800 flex items-center gap-2">
-                <FaUserCircle className="text-blue-600" />
+        <div className="card-header">
+          <div className="header-content">
+            <div className="header-title">
+              <h1 className="title">
+                <FaUserCircle className="title-icon" />
                 Gestão de Usuários
               </h1>
+              <p className="subtitle">
+                Gerencie os usuários do sistema
+              </p>
             </div>
 
-            <div className="flex flex-col sm:flex-row gap-3 w-full md:w-auto">
+            <div className="header-actions">
               <button
                 onClick={carregarUsuarios}
-                className="flex items-center justify-center gap-2 px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors"
+                disabled={isLoading}
+                className="btn-secondary"
               >
-                <FaSync />
-                Atualizar
+                <FaSync className={isLoading ? "spin" : ""} />
+                {isLoading ? "Carregando..." : "Atualizar"}
               </button>
 
               <button
-                onClick={() => navigate("/cadastro-usuario")}
-                className="flex items-center justify-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                onClick={() => navigate("/usuarios/cadastro")}
+                className="btn-primary"
               >
                 <FaPlus />
                 Novo Usuário
-              </button>
+              </button>
             </div>
           </div>
         </div>
 
         {/* Filtros e Busca */}
-        <div className="bg-white rounded-xl shadow-sm p-6 mb-6">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div className="relative">
-              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-               
+        <div className="card-filters">
+          <div className="filters-grid">
+            <div className="search-container">
+              <div className="search-icon">
+                <FaSearch />
               </div>
               <input
                 type="text"
                 placeholder="Pesquisar por nome, email ou perfil..."
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                className="pl-12 pr-4 py-2 w-full border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="search-input"
               />
             </div>
 
-            <div className="flex flex-col">
-              <label className="text-sm font-medium text-gray-700 mb-1">Status</label>
+            <div className="filter-group">
+              <label className="filter-label">
+                <FaFilter className="filter-icon" />
+                Status
+              </label>
               <select
                 value={statusFilter}
                 onChange={(e) => setStatusFilter(e.target.value as "all" | "active" | "inactive")}
-                className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="filter-select"
               >
                 <option value="all">Todos</option>
                 <option value="active">Ativos</option>
@@ -137,106 +180,102 @@ function ListaUsuarios() {
               </select>
             </div>
 
-            <div className="flex items-end">
-              <div className="text-sm text-gray-600">
-                {filtrados.length} {filtrados.length === 1 ? 'resultado' : 'resultados'}
+            <div className="results-count">
+              <div className="count-text">
+                {filtrados.length} {filtrados.length === 1 ? 'usuário encontrado' : 'usuários encontrados'}
               </div>
             </div>
           </div>
         </div>
 
         {/* Tabela */}
-        <div className="bg-white rounded-xl shadow-sm overflow-hidden">
+        <div className="card-table">
           {isLoading ? (
-            <div className="flex justify-center items-center py-12">
-              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+            <div className="loading-container">
+              <div className="loading-spinner"></div>
             </div>
           ) : filtrados.length === 0 ? (
-            <div className="text-center py-12 px-4">
-              <FaUser className="text-gray-300 text-5xl mx-auto mb-4" />
-              <h3 className="text-lg font-medium text-gray-700 mb-2">Nenhum usuário encontrado</h3>
-              <p className="text-gray-500 mb-4">
+            <div className="empty-state">
+              <FaUser className="empty-icon" />
+              <h3 className="empty-title">Nenhum usuário encontrado</h3>
+              <p className="empty-description">
                 {search || statusFilter !== "all"
                   ? "Tente ajustar os filtros de busca"
-                  : "Cadastre o primeiro usuário clicando no botão acima"}
+                  : "Cadastre o primeiro usuário clicando no botão 'Novo Usuário'"}
               </p>
+              <button
+                onClick={() => navigate("/usuarios/cadastro")}
+                className="btn-primary"
+              >
+                <FaPlus />
+                Cadastrar Primeiro Usuário
+              </button>
             </div>
           ) : (
-            <div className="overflow-x-auto">
-              <table className="w-full">
-                <thead className="bg-gray-50">
+            <div className="table-container">
+              <table className="data-table">
+                <thead className="table-header">
                   <tr>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Usuário
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Email
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Contato
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Perfil
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Status
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Ações
-                    </th>
+                    <th className="table-head">Usuário</th>
+                    <th className="table-head">Email</th>
+                    <th className="table-head">Tipo</th>
+                    <th className="table-head">Data de Criação</th>
+                    <th className="table-head">Status</th>
+                    <th className="table-head">Ações</th>
                   </tr>
                 </thead>
-                <tbody className="bg-white divide-y divide-gray-200">
+                <tbody className="table-body">
                   {filtrados.map((u) => (
-                    <tr key={u.id} className="hover:bg-gray-50 transition-colors">
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="flex items-center">
-                          <div className="flex-shrink-0 h-10 w-10 bg-blue-100 rounded-full flex items-center justify-center">
-                            <FaUser className="text-blue-600" />
+                    <tr key={u.id_usuario} className="table-row">
+                      <td className="table-cell">
+                        <div className="user-info">
+                          <div className="user-avatar">
+                            <FaUser className="avatar-icon" />
                           </div>
-                          <div className="ml-4">
-                            <div className="text-sm font-medium text-gray-900">{u.nome}</div>
+                          <div className="user-details">
+                            <div className="user-name">{u.nome}</div>
+                            <div className="user-id">ID: {u.id_usuario}</div>
                           </div>
                         </div>
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="flex items-center text-sm text-gray-900">
-                          <FaEnvelope className="text-gray-400 mr-2" />
+                      <td className="table-cell">
+                        <div className="email-info">
+                          <FaEnvelope className="email-icon" />
                           {u.email}
                         </div>
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="flex items-center text-sm text-gray-900">
-                          <FaPhone className="text-gray-400 mr-2" />
-                          {u.telefone}
+                      <td className="table-cell">
+                        <div className="user-type">
+                          {traduzirTipoUsuario(u.tipo_usuario)}
                         </div>
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="text-sm text-gray-900">{u.perfil}</div>
+                      <td className="table-cell">
+                        {formatarData(u.data_criacao)}
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${u.status_ativo
-                          ? "bg-green-100 text-green-800"
-                          : "bg-red-100 text-red-800"
-                          }`}>
-                          {u.status_ativo ? "Ativo" : "Inativo"}
-                        </span>
+                      <td className="table-cell">
+                        <button
+                          onClick={() => toggleStatusUsuario(u)}
+                          className={`status-badge ${u.ativo ? "status-active" : "status-inactive"}`}
+                        >
+                          {u.ativo ? "Ativo" : "Inativo"}
+                        </button>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                         <div className="flex space-x-2">
-                           <button
-                            onClick={() => navigate(`/editar-usuario/${a.id_usuario}`)}
+                          <button
+                            onClick={() => navigate(`/editar-usuario/${u.id_usuario}`)}
                             className="text-green-600 hover:text-green-900 p-1 rounded hover:bg-green-50"
                             title="Editar usuário"
                           >
                             <FaEdit />
                           </button>
                           <button
-                            onClick={() => excluirUsuario(u.id)}
-                            className="text-red-600 hover:text-red-900 p-1 rounded hover:bg-red-50"
+                            onClick={() => excluirUsuario(u.id_usuario)}
+                            className="btn-action btn-delete"
                             title="Excluir usuário"
                           >
                             <FaTrash />
+                             
                           </button>
                         </div>
                       </td>

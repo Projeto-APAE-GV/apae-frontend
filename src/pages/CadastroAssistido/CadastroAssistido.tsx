@@ -1,9 +1,8 @@
 import React, { useState } from 'react';
-import { FaUserCircle, FaCamera, FaSave } from 'react-icons/fa';
+import { FaSave } from 'react-icons/fa';
 import { FiArrowLeft, FiUser, FiMail, FiPhone, FiMap, FiCalendar, FiInfo } from 'react-icons/fi';
 import axios from 'axios';
 import './CadastroAssistido.css';
-
 
 // Interface com todos os campos que o backend espera, com os nomes corretos
 interface AssistidoFormData {
@@ -51,25 +50,72 @@ const CadastroAssistido: React.FC = () => {
   });
 
   const [activeTab, setActiveTab] = useState('dados-pessoais');
-  const [imagePreview, setImagePreview] = useState<string | null>(null);
+
+  // Funções de formatação
+  const formatCPF = (value: string): string => {
+    const numbers = value.replace(/\D/g, '');
+    if (numbers.length <= 3) return numbers;
+    if (numbers.length <= 6) return `${numbers.slice(0, 3)}.${numbers.slice(3)}`;
+    if (numbers.length <= 9) return `${numbers.slice(0, 3)}.${numbers.slice(3, 6)}.${numbers.slice(6)}`;
+    return `${numbers.slice(0, 3)}.${numbers.slice(3, 6)}.${numbers.slice(6, 9)}-${numbers.slice(9, 11)}`;
+  };
+
+  const formatRG = (value: string): string => {
+    const numbers = value.replace(/\D/g, '');
+    if (numbers.length <= 2) return numbers;
+    if (numbers.length <= 5) return `${numbers.slice(0, 2)}.${numbers.slice(2)}`;
+    if (numbers.length <= 8) return `${numbers.slice(0, 2)}.${numbers.slice(2, 5)}.${numbers.slice(5)}`;
+    return `${numbers.slice(0, 2)}.${numbers.slice(2, 5)}.${numbers.slice(5, 8)}-${numbers.slice(8, 9)}`;
+  };
+
+  const formatCEP = (value: string): string => {
+    const numbers = value.replace(/\D/g, '');
+    if (numbers.length <= 5) return numbers;
+    return `${numbers.slice(0, 5)}-${numbers.slice(5, 8)}`;
+  };
+
+  const formatPhone = (value: string): string => {
+    const numbers = value.replace(/\D/g, '');
+    if (numbers.length <= 2) return numbers;
+    if (numbers.length <= 6) return `(${numbers.slice(0, 2)}) ${numbers.slice(2)}`;
+    if (numbers.length <= 10) return `(${numbers.slice(0, 2)}) ${numbers.slice(2, 6)}-${numbers.slice(6)}`;
+    return `(${numbers.slice(0, 2)}) ${numbers.slice(2, 7)}-${numbers.slice(7, 11)}`;
+  };
+
+  // Função para remover formatação (enviar apenas números para o backend)
+  const removeFormatting = (value: string): string => {
+    return value.replace(/\D/g, '');
+  };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const { id, value, type } = e.target;
+    
+    let formattedValue = value;
+    
+    // Aplica formatação conforme o tipo de campo
+    switch (id) {
+      case 'cpf':
+      case 'cpf_responsavel':
+        formattedValue = formatCPF(value);
+        break;
+      case 'rg':
+        formattedValue = formatRG(value);
+        break;
+      case 'cep':
+        formattedValue = formatCEP(value);
+        break;
+      case 'telefone':
+      case 'telefone_responsavel':
+        formattedValue = formatPhone(value);
+        break;
+      default:
+        formattedValue = value;
+    }
+
     setFormData({
       ...formData,
-      [id]: type === 'checkbox' ? (e.target as HTMLInputElement).checked : value,
+      [id]: type === 'checkbox' ? (e.target as HTMLInputElement).checked : formattedValue,
     });
-  };
-
-  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setImagePreview(reader.result as string);
-      };
-      reader.readAsDataURL(file);
-    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -90,13 +136,19 @@ const CadastroAssistido: React.FC = () => {
         },
       };
 
+      // Remove a formatação dos campos antes de enviar para o backend
       const payload = {
         ...formData,
+        cpf: removeFormatting(formData.cpf),
+        rg: removeFormatting(formData.rg),
+        cep: removeFormatting(formData.cep),
+        telefone: removeFormatting(formData.telefone),
+        cpf_responsavel: removeFormatting(formData.cpf_responsavel),
+        telefone_responsavel: removeFormatting(formData.telefone_responsavel),
         data_nascimento: new Date(formData.data_nascimento).toISOString(),
       };
 
-         // <-- Coloca o console.log aqui
-    console.log("Payload enviado:", payload);
+      console.log("Payload enviado:", payload);
       
       const response = await axios.post(apiURL, payload, config);
       
@@ -141,8 +193,6 @@ const CadastroAssistido: React.FC = () => {
     }
   };
 
-  
-
   return (
     <div className="cadastro-container">
       <div className="cadastro-header">
@@ -157,27 +207,6 @@ const CadastroAssistido: React.FC = () => {
       </div>
 
       <div className="cadastro-content">
-        <div className="photo-section">
-          <div className="photo-upload">
-            {imagePreview ? (
-              <img src={imagePreview} alt="Preview" className="photo-preview" />
-            ) : (
-              <FaUserCircle className="photo-placeholder" />
-            )}
-            <label htmlFor="file-upload" className="upload-button">
-              <FaCamera className="camera-icon" />
-              Alterar Imagem
-            </label>
-            <input
-              id="file-upload"
-              type="file"
-              accept="image/*"
-              onChange={handleImageUpload}
-              style={{ display: 'none' }}
-            />
-          </div>
-        </div>
-
         <div className="form-section">
           <div className="tabs">
             <button 
@@ -233,6 +262,7 @@ const CadastroAssistido: React.FC = () => {
                     onChange={handleInputChange}
                     className="input-field"
                     placeholder="000.000.000-00"
+                    maxLength={14}
                   />
                 </div>
 
@@ -244,6 +274,8 @@ const CadastroAssistido: React.FC = () => {
                     value={formData.rg}
                     onChange={handleInputChange}
                     className="input-field"
+                    placeholder="00.000.000-0"
+                    maxLength={12}
                   />
                 </div>
 
@@ -308,6 +340,7 @@ const CadastroAssistido: React.FC = () => {
                     onChange={handleInputChange}
                     className="input-field"
                     placeholder="(00) 00000-0000"
+                    maxLength={15}
                   />
                 </div>
 
@@ -348,6 +381,7 @@ const CadastroAssistido: React.FC = () => {
                     onChange={handleInputChange}
                     className="input-field"
                     placeholder="00000-000"
+                    maxLength={9}
                   />
                 </div>
 
@@ -425,6 +459,7 @@ const CadastroAssistido: React.FC = () => {
                     onChange={handleInputChange}
                     className="input-field"
                     placeholder="000.000.000-00"
+                    maxLength={14}
                   />
                 </div>
 
@@ -455,6 +490,7 @@ const CadastroAssistido: React.FC = () => {
                     onChange={handleInputChange}
                     className="input-field"
                     placeholder="(00) 00000-0000"
+                    maxLength={15}
                   />
                 </div>
               </div>

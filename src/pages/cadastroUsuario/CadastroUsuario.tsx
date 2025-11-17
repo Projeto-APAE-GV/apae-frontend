@@ -1,39 +1,34 @@
 import React, { useState } from 'react';
-import { FaUserCircle, FaCamera, FaSave } from 'react-icons/fa';
+import { FaSave } from 'react-icons/fa';
 import { FiArrowLeft, FiUser, FiMail, FiPhone, FiLock, FiBriefcase } from 'react-icons/fi';
 import axios from 'axios';
 import './CadastroUsuario.css';
 
-// Interface com os campos esperados pelo backend de usuários
+// Interface com os campos esperados pelo backend
 interface UsuarioFormData {
   nome: string;
   email: string;
-  senha: string;
-  telefone: string;
+  senha_hash: string;
   tipo_usuario: string;
-  status_ativo: boolean;
 }
 
 const CadastroUsuario: React.FC = () => {
-  // Inicialização do estado com os campos do backend
   const [formData, setFormData] = useState<UsuarioFormData>({
     nome: '',
     email: '',
-    senha: '',
-    telefone: '',
+    senha_hash: '',
     tipo_usuario: '',
-    status_ativo: true,
   });
 
   const [confirmarSenha, setConfirmarSenha] = useState('');
   const [activeTab, setActiveTab] = useState('dados-basicos');
-  const [imagePreview, setImagePreview] = useState<string | null>(null);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-    const { id, value, type } = e.target;
+    const { id, value } = e.target;
+    
     setFormData({
       ...formData,
-      [id]: type === 'checkbox' ? (e.target as HTMLInputElement).checked : value,
+      [id]: value,
     });
   };
 
@@ -41,23 +36,16 @@ const CadastroUsuario: React.FC = () => {
     setConfirmarSenha(e.target.value);
   };
 
-  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setImagePreview(reader.result as string);
-      };
-      reader.readAsDataURL(file);
-    }
-  };
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    // Verificar se as senhas coincidem
-    if (formData.senha !== confirmarSenha) {
+    if (formData.senha_hash !== confirmarSenha) {
       alert('As senhas não coincidem!');
+      return;
+    }
+
+    if (formData.senha_hash.length < 6) {
+      alert('A senha deve ter no mínimo 6 caracteres!');
       return;
     }
 
@@ -76,21 +64,25 @@ const CadastroUsuario: React.FC = () => {
         },
       };
 
-      console.log("Payload enviado:", formData);
+      const payload = {
+        nome: formData.nome,
+        email: formData.email,
+        senha_hash: formData.senha_hash,
+        tipo_usuario: formData.tipo_usuario,
+      };
+
+      console.log("Payload enviado:", payload);
       
-      const response = await axios.post(apiURL, formData, config);
+      const response = await axios.post(apiURL, payload, config);
       
       console.log('Usuário cadastrado com sucesso:', response.data);
       alert('Usuário cadastrado com sucesso!');
       
-      // Limpa o formulário após o sucesso
       setFormData({
         nome: '',
         email: '',
-        senha: '',
-        telefone: '',
+        senha_hash: '',
         tipo_usuario: '',
-        status_ativo: true,
       });
       setConfirmarSenha('');
 
@@ -124,27 +116,6 @@ const CadastroUsuario: React.FC = () => {
       </div>
 
       <div className="cadastro-content">
-        <div className="photo-section">
-          <div className="photo-upload">
-            {imagePreview ? (
-              <img src={imagePreview} alt="Preview" className="photo-preview" />
-            ) : (
-              <FaUserCircle className="photo-placeholder" />
-            )}
-            <label htmlFor="file-upload" className="upload-button">
-              <FaCamera className="camera-icon" />
-              Alterar Imagem
-            </label>
-            <input
-              id="file-upload"
-              type="file"
-              accept="image/*"
-              onChange={handleImageUpload}
-              style={{ display: 'none' }}
-            />
-          </div>
-        </div>
-
         <div className="form-section">
           <div className="tabs">
             <button 
@@ -195,21 +166,6 @@ const CadastroUsuario: React.FC = () => {
                 </div>
 
                 <div className="input-group">
-                  <label htmlFor="telefone" className="input-label">
-                    <FiPhone className="input-icon" />
-                    Telefone
-                  </label>
-                  <input
-                    type="tel"
-                    id="telefone"
-                    value={formData.telefone}
-                    onChange={handleInputChange}
-                    className="input-field"
-                    placeholder="(00) 00000-0000"
-                  />
-                </div>
-
-                <div className="input-group">
                   <label htmlFor="tipo_usuario" className="input-label">
                     <FiBriefcase className="input-icon" />
                     Tipo de Usuário
@@ -234,18 +190,22 @@ const CadastroUsuario: React.FC = () => {
             {activeTab === 'acesso' && (
               <div className="form-grid">
                 <div className="input-group">
-                  <label htmlFor="senha" className="input-label">
+                  <label htmlFor="senha_hash" className="input-label">
                     <FiLock className="input-icon" />
                     Senha
                   </label>
                   <input
                     type="password"
-                    id="senha"
-                    value={formData.senha}
+                    id="senha_hash"
+                    value={formData.senha_hash}
                     onChange={handleInputChange}
                     className="input-field"
                     required
+                    minLength={6}
                   />
+                  <small style={{ color: '#666', fontSize: '12px', marginTop: '5px' }}>
+                    A senha deve ter no mínimo 6 caracteres
+                  </small>
                 </div>
 
                 <div className="input-group">
@@ -260,21 +220,8 @@ const CadastroUsuario: React.FC = () => {
                     onChange={handleConfirmarSenhaChange}
                     className="input-field"
                     required
+                    minLength={6}
                   />
-                </div>
-
-                <div className="input-group">
-                  <label htmlFor="status_ativo" className="checkbox-label">
-                    <input
-                      type="checkbox"
-                      id="status_ativo"
-                      checked={formData.status_ativo}
-                      onChange={handleInputChange}
-                      className="checkbox-input"
-                    />
-                    <span className="checkbox-custom"></span>
-                    Usuário Ativo
-                  </label>
                 </div>
               </div>
             )}

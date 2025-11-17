@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { FaUserCircle, FaCamera, FaSave } from 'react-icons/fa';
+import { FaSave } from 'react-icons/fa';
 import { FiArrowLeft, FiUser, FiMail, FiPhone, FiMap, FiCalendar, FiInfo } from 'react-icons/fi';
 import axios from 'axios';
 import './CadastroAssistido.css';
@@ -52,8 +52,43 @@ const EditarAssistido: React.FC = () => {
   });
 
   const [activeTab, setActiveTab] = useState('dados-pessoais');
-  const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [carregando, setCarregando] = useState(true);
+
+  // Funções de formatação
+  const formatCPF = (value: string): string => {
+    const numbers = value.replace(/\D/g, '');
+    if (numbers.length <= 3) return numbers;
+    if (numbers.length <= 6) return `${numbers.slice(0, 3)}.${numbers.slice(3)}`;
+    if (numbers.length <= 9) return `${numbers.slice(0, 3)}.${numbers.slice(3, 6)}.${numbers.slice(6)}`;
+    return `${numbers.slice(0, 3)}.${numbers.slice(3, 6)}.${numbers.slice(6, 9)}-${numbers.slice(9, 11)}`;
+  };
+
+  const formatRG = (value: string): string => {
+    const numbers = value.replace(/\D/g, '');
+    if (numbers.length <= 2) return numbers;
+    if (numbers.length <= 5) return `${numbers.slice(0, 2)}.${numbers.slice(2)}`;
+    if (numbers.length <= 8) return `${numbers.slice(0, 2)}.${numbers.slice(2, 5)}.${numbers.slice(5)}`;
+    return `${numbers.slice(0, 2)}.${numbers.slice(2, 5)}.${numbers.slice(5, 8)}-${numbers.slice(8, 9)}`;
+  };
+
+  const formatCEP = (value: string): string => {
+    const numbers = value.replace(/\D/g, '');
+    if (numbers.length <= 5) return numbers;
+    return `${numbers.slice(0, 5)}-${numbers.slice(5, 8)}`;
+  };
+
+  const formatPhone = (value: string): string => {
+    const numbers = value.replace(/\D/g, '');
+    if (numbers.length <= 2) return numbers;
+    if (numbers.length <= 6) return `(${numbers.slice(0, 2)}) ${numbers.slice(2)}`;
+    if (numbers.length <= 10) return `(${numbers.slice(0, 2)}) ${numbers.slice(2, 6)}-${numbers.slice(6)}`;
+    return `(${numbers.slice(0, 2)}) ${numbers.slice(2, 7)}-${numbers.slice(7, 11)}`;
+  };
+
+  // Função para remover formatação (enviar apenas números para o backend)
+  const removeFormatting = (value: string): string => {
+    return value.replace(/\D/g, '');
+  };
 
   // Carregar dados do assistido
   useEffect(() => {
@@ -82,23 +117,24 @@ const EditarAssistido: React.FC = () => {
           ? new Date(assistido.data_nascimento).toISOString().split('T')[0]
           : '';
 
+        // Aplicar formatação nos campos ao carregar
         setFormData({
           nome: assistido.nome || '',
-          cpf: assistido.cpf || '',
-          rg: assistido.rg || '',
+          cpf: assistido.cpf ? formatCPF(assistido.cpf) : '',
+          rg: assistido.rg ? formatRG(assistido.rg) : '',
           data_nascimento: dataNascimento,
           sexo: assistido.sexo || '',
           estado_civil: assistido.estado_civil || '',
-          telefone: assistido.telefone || '',
+          telefone: assistido.telefone ? formatPhone(assistido.telefone) : '',
           email: assistido.email || '',
           endereco_completo: assistido.endereco_completo || '',
-          cep: assistido.cep || '',
+          cep: assistido.cep ? formatCEP(assistido.cep) : '',
           cidade: assistido.cidade || '',
           estado: assistido.estado || '',
           nome_responsavel: assistido.nome_responsavel || '',
-          cpf_responsavel: assistido.cpf_responsavel || '',
+          cpf_responsavel: assistido.cpf_responsavel ? formatCPF(assistido.cpf_responsavel) : '',
           parentesco_responsavel: assistido.parentesco_responsavel || '',
-          telefone_responsavel: assistido.telefone_responsavel || '',
+          telefone_responsavel: assistido.telefone_responsavel ? formatPhone(assistido.telefone_responsavel) : '',
           status_ativo: assistido.status_ativo !== undefined ? assistido.status_ativo : true,
           observacoes_gerais: assistido.observacoes_gerais || '',
         });
@@ -130,21 +166,33 @@ const EditarAssistido: React.FC = () => {
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const { id, value, type } = e.target;
+    
+    let formattedValue = value;
+    
+    // Aplica formatação conforme o tipo de campo
+    switch (id) {
+      case 'cpf':
+      case 'cpf_responsavel':
+        formattedValue = formatCPF(value);
+        break;
+      case 'rg':
+        formattedValue = formatRG(value);
+        break;
+      case 'cep':
+        formattedValue = formatCEP(value);
+        break;
+      case 'telefone':
+      case 'telefone_responsavel':
+        formattedValue = formatPhone(value);
+        break;
+      default:
+        formattedValue = value;
+    }
+
     setFormData({
       ...formData,
-      [id]: type === 'checkbox' ? (e.target as HTMLInputElement).checked : value,
+      [id]: type === 'checkbox' ? (e.target as HTMLInputElement).checked : formattedValue,
     });
-  };
-
-  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setImagePreview(reader.result as string);
-      };
-      reader.readAsDataURL(file);
-    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -165,9 +213,15 @@ const EditarAssistido: React.FC = () => {
         },
       };
 
-      // Preparar payload para atualização
+      // Remove a formatação dos campos antes de enviar para o backend
       const payload = {
         ...formData,
+        cpf: removeFormatting(formData.cpf),
+        rg: removeFormatting(formData.rg),
+        cep: removeFormatting(formData.cep),
+        telefone: removeFormatting(formData.telefone),
+        cpf_responsavel: removeFormatting(formData.cpf_responsavel),
+        telefone_responsavel: removeFormatting(formData.telefone_responsavel),
         data_nascimento: formData.data_nascimento ? new Date(formData.data_nascimento).toISOString() : null,
       };
 
@@ -236,27 +290,6 @@ const EditarAssistido: React.FC = () => {
       </div>
 
       <div className="cadastro-content">
-        <div className="photo-section">
-          <div className="photo-upload">
-            {imagePreview ? (
-              <img src={imagePreview} alt="Preview" className="photo-preview" />
-            ) : (
-              <FaUserCircle className="photo-placeholder" />
-            )}
-            <label htmlFor="file-upload" className="upload-button">
-              <FaCamera className="camera-icon" />
-              Alterar Imagem
-            </label>
-            <input
-              id="file-upload"
-              type="file"
-              accept="image/*"
-              onChange={handleImageUpload}
-              style={{ display: 'none' }}
-            />
-          </div>
-        </div>
-
         <div className="form-section">
           <div className="tabs">
             <button 
@@ -312,6 +345,7 @@ const EditarAssistido: React.FC = () => {
                     onChange={handleInputChange}
                     className="input-field"
                     placeholder="000.000.000-00"
+                    maxLength={14}
                   />
                 </div>
 
@@ -323,6 +357,8 @@ const EditarAssistido: React.FC = () => {
                     value={formData.rg}
                     onChange={handleInputChange}
                     className="input-field"
+                    placeholder="00.000.000-0"
+                    maxLength={12}
                   />
                 </div>
 
@@ -387,6 +423,7 @@ const EditarAssistido: React.FC = () => {
                     onChange={handleInputChange}
                     className="input-field"
                     placeholder="(00) 00000-0000"
+                    maxLength={15}
                   />
                 </div>
 
@@ -427,6 +464,7 @@ const EditarAssistido: React.FC = () => {
                     onChange={handleInputChange}
                     className="input-field"
                     placeholder="00000-000"
+                    maxLength={9}
                   />
                 </div>
 
@@ -504,6 +542,7 @@ const EditarAssistido: React.FC = () => {
                     onChange={handleInputChange}
                     className="input-field"
                     placeholder="000.000.000-00"
+                    maxLength={14}
                   />
                 </div>
 
@@ -534,6 +573,7 @@ const EditarAssistido: React.FC = () => {
                     onChange={handleInputChange}
                     className="input-field"
                     placeholder="(00) 00000-0000"
+                    maxLength={15}
                   />
                 </div>
               </div>
