@@ -1,120 +1,42 @@
 import React, { useState } from 'react';
 import { FaSave } from 'react-icons/fa';
-import { FiArrowLeft, FiUser, FiMail, FiPhone, FiMap, FiCalendar, FiInfo } from 'react-icons/fi';
+import { FiArrowLeft, FiUser, FiPhone, FiFileText, FiCalendar, FiMap, FiMail } from 'react-icons/fi';
 import axios from 'axios';
 import './CadastroAssistido.css';
 
-// Interface com todos os campos que o backend espera, com os nomes corretos
 interface AssistidoFormData {
-  nome: string;
+  nome_completo: string;
   cpf: string;
   rg: string;
-  data_nascimento: string;
   sexo: string;
+  data_nascimento: string;
   estado_civil: string;
-  telefone: string;
-  email: string;
-  endereco_completo: string;
-  cep: string;
-  cidade: string;
-  estado: string;
-  nome_responsavel: string;
-  cpf_responsavel: string;
-  parentesco_responsavel: string;
-  telefone_responsavel: string;
-  status_ativo: boolean;
-  observacoes_gerais: string;
+  contato: string;
+  responsavel: string;
+  observacoes: string;
 }
 
 const CadastroAssistido: React.FC = () => {
-  // Inicialização do estado com os campos exatos do backend
   const [formData, setFormData] = useState<AssistidoFormData>({
-    nome: '',
+    nome_completo: '',
     cpf: '',
     rg: '',
-    data_nascimento: '',
     sexo: '',
+    data_nascimento: '',
     estado_civil: '',
-    telefone: '',
-    email: '',
-    endereco_completo: '',
-    cep: '',
-    cidade: '',
-    estado: '',
-    nome_responsavel: '',
-    cpf_responsavel: '',
-    parentesco_responsavel: '',
-    telefone_responsavel: '',
-    status_ativo: true,
-    observacoes_gerais: '',
+    contato: '',
+    responsavel: '',
+    observacoes: '',
   });
 
   const [activeTab, setActiveTab] = useState('dados-pessoais');
 
-  // Funções de formatação
-  const formatCPF = (value: string): string => {
-    const numbers = value.replace(/\D/g, '');
-    if (numbers.length <= 3) return numbers;
-    if (numbers.length <= 6) return `${numbers.slice(0, 3)}.${numbers.slice(3)}`;
-    if (numbers.length <= 9) return `${numbers.slice(0, 3)}.${numbers.slice(3, 6)}.${numbers.slice(6)}`;
-    return `${numbers.slice(0, 3)}.${numbers.slice(3, 6)}.${numbers.slice(6, 9)}-${numbers.slice(9, 11)}`;
-  };
-
-  const formatRG = (value: string): string => {
-    const numbers = value.replace(/\D/g, '');
-    if (numbers.length <= 2) return numbers;
-    if (numbers.length <= 5) return `${numbers.slice(0, 2)}.${numbers.slice(2)}`;
-    if (numbers.length <= 8) return `${numbers.slice(0, 2)}.${numbers.slice(2, 5)}.${numbers.slice(5)}`;
-    return `${numbers.slice(0, 2)}.${numbers.slice(2, 5)}.${numbers.slice(5, 8)}-${numbers.slice(8, 9)}`;
-  };
-
-  const formatCEP = (value: string): string => {
-    const numbers = value.replace(/\D/g, '');
-    if (numbers.length <= 5) return numbers;
-    return `${numbers.slice(0, 5)}-${numbers.slice(5, 8)}`;
-  };
-
-  const formatPhone = (value: string): string => {
-    const numbers = value.replace(/\D/g, '');
-    if (numbers.length <= 2) return numbers;
-    if (numbers.length <= 6) return `(${numbers.slice(0, 2)}) ${numbers.slice(2)}`;
-    if (numbers.length <= 10) return `(${numbers.slice(0, 2)}) ${numbers.slice(2, 6)}-${numbers.slice(6)}`;
-    return `(${numbers.slice(0, 2)}) ${numbers.slice(2, 7)}-${numbers.slice(7, 11)}`;
-  };
-
-  // Função para remover formatação (enviar apenas números para o backend)
-  const removeFormatting = (value: string): string => {
-    return value.replace(/\D/g, '');
-  };
-
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
-    const { id, value, type } = e.target;
+    const { id, value } = e.target;
     
-    let formattedValue = value;
-    
-    // Aplica formatação conforme o tipo de campo
-    switch (id) {
-      case 'cpf':
-      case 'cpf_responsavel':
-        formattedValue = formatCPF(value);
-        break;
-      case 'rg':
-        formattedValue = formatRG(value);
-        break;
-      case 'cep':
-        formattedValue = formatCEP(value);
-        break;
-      case 'telefone':
-      case 'telefone_responsavel':
-        formattedValue = formatPhone(value);
-        break;
-      default:
-        formattedValue = value;
-    }
-
     setFormData({
       ...formData,
-      [id]: type === 'checkbox' ? (e.target as HTMLInputElement).checked : formattedValue,
+      [id]: value,
     });
   };
 
@@ -122,7 +44,7 @@ const CadastroAssistido: React.FC = () => {
     e.preventDefault();
 
     try {
-      const apiURL = 'http://localhost:3000/assistidos';
+      const apiURL = `${import.meta.env.VITE_URL_BACKEND || 'http://localhost:3000'}/assistidos`;
       const token = localStorage.getItem('token');
 
       if (!token) {
@@ -136,45 +58,24 @@ const CadastroAssistido: React.FC = () => {
         },
       };
 
-      // Remove a formatação dos campos antes de enviar para o backend
-      const payload = {
-        ...formData,
-        cpf: removeFormatting(formData.cpf),
-        rg: removeFormatting(formData.rg),
-        cep: removeFormatting(formData.cep),
-        telefone: removeFormatting(formData.telefone),
-        cpf_responsavel: removeFormatting(formData.cpf_responsavel),
-        telefone_responsavel: removeFormatting(formData.telefone_responsavel),
-        data_nascimento: new Date(formData.data_nascimento).toISOString(),
-      };
-
-      console.log("Payload enviado:", payload);
+      console.log("Payload enviado:", formData);
       
-      const response = await axios.post(apiURL, payload, config);
+      const response = await axios.post(apiURL, formData, config);
       
-      console.log('Paciente cadastrado com sucesso:', response.data);
-      alert('Paciente cadastrado com sucesso!');
+      console.log('Assistido cadastrado com sucesso:', response.data);
+      alert('Assistido cadastrado com sucesso!');
       
-      // Limpa o formulário após o sucesso
+      // Reset form
       setFormData({
-        nome: '',
+        nome_completo: '',
         cpf: '',
         rg: '',
-        data_nascimento: '',
         sexo: '',
+        data_nascimento: '',
         estado_civil: '',
-        telefone: '',
-        email: '',
-        endereco_completo: '',
-        cep: '',
-        cidade: '',
-        estado: '',
-        nome_responsavel: '',
-        cpf_responsavel: '',
-        parentesco_responsavel: '',
-        telefone_responsavel: '',
-        status_ativo: true,
-        observacoes_gerais: '',
+        contato: '',
+        responsavel: '',
+        observacoes: '',
       });
 
     } catch (error) {
@@ -197,7 +98,7 @@ const CadastroAssistido: React.FC = () => {
     <div className="cadastro-container">
       <div className="cadastro-header">
         <button className="back-button" onClick={() => window.history.back()}>
-          <FiArrowLeft size={20}  />
+          <FiArrowLeft size={20} />
           Voltar
         </button>
         <h1 className="cadastro-title">
@@ -219,34 +120,22 @@ const CadastroAssistido: React.FC = () => {
               className={`tab ${activeTab === 'contato' ? 'active' : ''}`}
               onClick={() => setActiveTab('contato')}
             >
-              Contato
-            </button>
-            <button 
-              className={`tab ${activeTab === 'responsavel' ? 'active' : ''}`}
-              onClick={() => setActiveTab('responsavel')}
-            >
-              Responsável
-            </button>
-            <button 
-              className={`tab ${activeTab === 'observacoes' ? 'active' : ''}`}
-              onClick={() => setActiveTab('observacoes')}
-            >
-              Observações
+              Contato e Observações
             </button>
           </div>
 
           <form onSubmit={handleSubmit} className="form">
             {activeTab === 'dados-pessoais' && (
               <div className="form-grid">
-                <div className="input-group">
-                  <label htmlFor="nome" className="input-label">
+                <div className="input-group full-width">
+                  <label htmlFor="nome_completo" className="input-label">
                     <FiUser className="input-icon" />
-                    Nome Completo
+                    Nome Completo *
                   </label>
                   <input
                     type="text"
-                    id="nome"
-                    value={formData.nome}
+                    id="nome_completo"
+                    value={formData.nome_completo}
                     onChange={handleInputChange}
                     className="input-field"
                     required
@@ -254,7 +143,10 @@ const CadastroAssistido: React.FC = () => {
                 </div>
 
                 <div className="input-group">
-                  <label htmlFor="cpf" className="input-label">CPF</label>
+                  <label htmlFor="cpf" className="input-label">
+                    <FiFileText className="input-icon" />
+                    CPF *
+                  </label>
                   <input
                     type="text"
                     id="cpf"
@@ -262,12 +154,15 @@ const CadastroAssistido: React.FC = () => {
                     onChange={handleInputChange}
                     className="input-field"
                     placeholder="000.000.000-00"
-                    maxLength={14}
+                    required
                   />
                 </div>
 
                 <div className="input-group">
-                  <label htmlFor="rg" className="input-label">RG</label>
+                  <label htmlFor="rg" className="input-label">
+                    <FiFileText className="input-icon" />
+                    RG *
+                  </label>
                   <input
                     type="text"
                     id="rg"
@@ -275,14 +170,33 @@ const CadastroAssistido: React.FC = () => {
                     onChange={handleInputChange}
                     className="input-field"
                     placeholder="00.000.000-0"
-                    maxLength={12}
+                    required
                   />
+                </div>
+
+                <div className="input-group">
+                  <label htmlFor="sexo" className="input-label">
+                    <FiUser className="input-icon" />
+                    Sexo *
+                  </label>
+                  <select
+                    id="sexo"
+                    value={formData.sexo}
+                    onChange={handleInputChange}
+                    className="input-field"
+                    required
+                  >
+                    <option value="">Selecione</option>
+                    <option value="masculino">Masculino</option>
+                    <option value="feminino">Feminino</option>
+                    <option value="outro">Outro</option>
+                  </select>
                 </div>
 
                 <div className="input-group">
                   <label htmlFor="data_nascimento" className="input-label">
                     <FiCalendar className="input-icon" />
-                    Data de Nascimento
+                    Data de Nascimento *
                   </label>
                   <input
                     type="date"
@@ -290,37 +204,28 @@ const CadastroAssistido: React.FC = () => {
                     value={formData.data_nascimento}
                     onChange={handleInputChange}
                     className="input-field"
+                    required
                   />
                 </div>
 
                 <div className="input-group">
-                  <label htmlFor="sexo" className="input-label">Sexo</label>
-                  <select
-                    id="sexo"
-                    value={formData.sexo}
-                    onChange={handleInputChange}
-                    className="input-field"
-                  >
-                    <option value="">Selecione</option>
-                    <option value="M">Masculino</option>
-                    <option value="F">Feminino</option>
-                    <option value="Outro">Outro</option>
-                  </select>
-                </div>
-
-                <div className="input-group">
-                  <label htmlFor="estado_civil" className="input-label">Estado Civil</label>
+                  <label htmlFor="estado_civil" className="input-label">
+                    <FiUser className="input-icon" />
+                    Estado Civil *
+                  </label>
                   <select
                     id="estado_civil"
                     value={formData.estado_civil}
                     onChange={handleInputChange}
                     className="input-field"
+                    required
                   >
                     <option value="">Selecione</option>
-                    <option value="Solteiro">Solteiro(a)</option>
-                    <option value="Casado">Casado(a)</option>
-                    <option value="Divorciado">Divorciado(a)</option>
-                    <option value="Viúvo">Viúvo(a)</option>
+                    <option value="solteiro">Solteiro(a)</option>
+                    <option value="casado">Casado(a)</option>
+                    <option value="divorciado">Divorciado(a)</option>
+                    <option value="viuvo">Viúvo(a)</option>
+                    <option value="uniao_estavel">União Estável</option>
                   </select>
                 </div>
               </div>
@@ -329,201 +234,48 @@ const CadastroAssistido: React.FC = () => {
             {activeTab === 'contato' && (
               <div className="form-grid">
                 <div className="input-group">
-                  <label htmlFor="telefone" className="input-label">
+                  <label htmlFor="contato" className="input-label">
                     <FiPhone className="input-icon" />
-                    Telefone
+                    Contato
                   </label>
                   <input
-                    type="tel"
-                    id="telefone"
-                    value={formData.telefone}
+                    type="text"
+                    id="contato"
+                    value={formData.contato}
                     onChange={handleInputChange}
                     className="input-field"
-                    placeholder="(00) 00000-0000"
-                    maxLength={15}
+                    placeholder="Telefone ou email"
                   />
                 </div>
 
                 <div className="input-group">
-                  <label htmlFor="email" className="input-label">
+                  <label htmlFor="responsavel" className="input-label">
+                    <FiUser className="input-icon" />
+                    Responsável
+                  </label>
+                  <input
+                    type="text"
+                    id="responsavel"
+                    value={formData.responsavel}
+                    onChange={handleInputChange}
+                    className="input-field"
+                    placeholder="Nome do responsável"
+                  />
+                </div>
+
+                <div className="input-group full-width">
+                  <label htmlFor="observacoes" className="input-label">
                     <FiMail className="input-icon" />
-                    E-mail
-                  </label>
-                  <input
-                    type="email"
-                    id="email"
-                    value={formData.email}
-                    onChange={handleInputChange}
-                    className="input-field"
-                  />
-                </div>
-
-                <div className="input-group full-width">
-                  <label htmlFor="endereco_completo" className="input-label">
-                    <FiMap className="input-icon" />
-                    Endereço Completo
-                  </label>
-                  <input
-                    type="text"
-                    id="endereco_completo"
-                    value={formData.endereco_completo}
-                    onChange={handleInputChange}
-                    className="input-field"
-                  />
-                </div>
-
-                <div className="input-group">
-                  <label htmlFor="cep" className="input-label">CEP</label>
-                  <input
-                    type="text"
-                    id="cep"
-                    value={formData.cep}
-                    onChange={handleInputChange}
-                    className="input-field"
-                    placeholder="00000-000"
-                    maxLength={9}
-                  />
-                </div>
-
-                <div className="input-group">
-                  <label htmlFor="cidade" className="input-label">Cidade</label>
-                  <input
-                    type="text"
-                    id="cidade"
-                    value={formData.cidade}
-                    onChange={handleInputChange}
-                    className="input-field"
-                  />
-                </div>
-
-                <div className="input-group">
-                  <label htmlFor="estado" className="input-label">Estado</label>
-                  <select
-                    id="estado"
-                    value={formData.estado}
-                    onChange={handleInputChange}
-                    className="input-field"
-                  >
-                    <option value="">Selecione</option>
-                    <option value="AC">Acre</option>
-                    <option value="AL">Alagoas</option>
-                    <option value="AP">Amapá</option>
-                    <option value="AM">Amazonas</option>
-                    <option value="BA">Bahia</option>
-                    <option value="CE">Ceará</option>
-                    <option value="DF">Distrito Federal</option>
-                    <option value="ES">Espírito Santo</option>
-                    <option value="GO">Goiás</option>
-                    <option value="MA">Maranhão</option>
-                    <option value="MT">Mato Grosso</option>
-                    <option value="MS">Mato Grosso do Sul</option>
-                    <option value="MG">Minha Gerais</option>
-                    <option value="PA">Pará</option>
-                    <option value="PB">Paraíba</option>
-                    <option value="PR">Paraná</option>
-                    <option value="PE">Pernambuco</option>
-                    <option value="PI">Piauí</option>
-                    <option value="RJ">Rio de Janeiro</option>
-                    <option value="RN">Rio Grande do Norte</option>
-                    <option value="RS">Rio Grande do Sul</option>
-                    <option value="RO">Rondônia</option>
-                    <option value="RR">Roraima</option>
-                    <option value="SC">Santa Catarina</option>
-                    <option value="SP">São Paulo</option>
-                    <option value="SE">Sergipe</option>
-                    <option value="TO">Tocantins</option>
-                  </select>
-                </div>
-              </div>
-            )}
-
-            {activeTab === 'responsavel' && (
-              <div className="form-grid">
-                <div className="input-group full-width">
-                  <label htmlFor="nome_responsavel" className="input-label">Nome do Responsável</label>
-                  <input
-                    type="text"
-                    id="nome_responsavel"
-                    value={formData.nome_responsavel}
-                    onChange={handleInputChange}
-                    className="input-field"
-                  />
-                </div>
-
-                <div className="input-group">
-                  <label htmlFor="cpf_responsavel" className="input-label">CPF do Responsável</label>
-                  <input
-                    type="text"
-                    id="cpf_responsavel"
-                    value={formData.cpf_responsavel}
-                    onChange={handleInputChange}
-                    className="input-field"
-                    placeholder="000.000.000-00"
-                    maxLength={14}
-                  />
-                </div>
-
-                <div className="input-group">
-                  <label htmlFor="parentesco_responsavel" className="input-label">Parentesco</label>
-                  <select
-                    id="parentesco_responsavel"
-                    value={formData.parentesco_responsavel}
-                    onChange={handleInputChange}
-                    className="input-field"
-                  >
-                    <option value="">Selecione</option>
-                    <option value="Pai">Pai</option>
-                    <option value="Mãe">Mãe</option>
-                    <option value="Avô/Avó">Avô/Avó</option>
-                    <option value="Tio/Tia">Tio/Tia</option>
-                    <option value="Irmão/Irmã">Irmão/Irmã</option>
-                    <option value="Outro">Outro</option>
-                  </select>
-                </div>
-
-                <div className="input-group">
-                  <label htmlFor="telefone_responsavel" className="input-label">Telefone do Responsável</label>
-                  <input
-                    type="tel"
-                    id="telefone_responsavel"
-                    value={formData.telefone_responsavel}
-                    onChange={handleInputChange}
-                    className="input-field"
-                    placeholder="(00) 00000-0000"
-                    maxLength={15}
-                  />
-                </div>
-              </div>
-            )}
-
-            {activeTab === 'observacoes' && (
-              <div className="form-grid">
-                <div className="input-group full-width">
-                  <label htmlFor="observacoes_gerais" className="input-label">
-                    <FiInfo className="input-icon" />
-                    Observações Gerais
+                    Observações
                   </label>
                   <textarea
-                    id="observacoes_gerais"
-                    value={formData.observacoes_gerais}
+                    id="observacoes"
+                    value={formData.observacoes}
                     onChange={handleInputChange}
                     className="input-field textarea"
-                    rows={5}
-                  ></textarea>
-                </div>
-
-                <div className="input-group">
-                  <label htmlFor="status_ativo" className="checkbox-label">
-                    <input
-                      type="checkbox"
-                      id="status_ativo"
-                      checked={formData.status_ativo}
-                      onChange={handleInputChange}
-                      className="checkbox-input"
-                    />
-                    <span className="checkbox-custom"></span>
-                    Paciente Ativo
-                  </label>
+                    placeholder="Observações importantes"
+                    rows={4}
+                  />
                 </div>
               </div>
             )}

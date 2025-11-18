@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import api from "../../services/api";
-import "./ListarAssistido.css";
 import {
   FaSearch,
   FaPlus,
@@ -13,8 +12,10 @@ import {
   FaIdCard,
   FaUserCircle,
   FaFilter,
-  FaSync
+  FaSync,
+  FaEnvelope
 } from "react-icons/fa";
+import "./ListarAssistido.css";
 
 interface Assistido {
   id_assistido: number;
@@ -23,6 +24,8 @@ interface Assistido {
   telefone: string;
   status_ativo: boolean;
   nome_responsavel?: string;
+  email?: string;
+  data_criacao?: string;
 }
 
 function ListaAssistidos() {
@@ -38,6 +41,7 @@ function ListaAssistidos() {
       const { data } = await api.get("/assistidos");
       setAssistidos(data);
     } catch (err) {
+      console.error("Erro ao carregar assistidos:", err);
       alert("Erro ao carregar assistidos");
     } finally {
       setIsLoading(false);
@@ -49,8 +53,34 @@ function ListaAssistidos() {
     try {
       await api.delete(`/assistidos/${id_assistido}`);
       setAssistidos((prev) => prev.filter((a) => a.id_assistido !== id_assistido));
+      alert("Assistido excluído com sucesso!");
     } catch (err) {
+      console.error("Erro ao excluir assistido:", err);
       alert("Erro ao excluir assistido");
+    }
+  };
+
+  const toggleStatusAssistido = async (assistido: Assistido) => {
+    const novoStatus = !assistido.status_ativo;
+    const acao = novoStatus ? "ativar" : "inativar";
+    
+    if (!confirm(`Tem certeza que deseja ${acao} o assistido ${assistido.nome}?`)) return;
+    
+    try {
+      await api.put(`/assistidos/${assistido.id_assistido}`, {
+        status_ativo: novoStatus
+      });
+      
+      setAssistidos(prev => prev.map(a => 
+        a.id_assistido === assistido.id_assistido 
+          ? { ...a, status_ativo: novoStatus }
+          : a
+      ));
+      
+      alert(`Assistido ${acao === "ativar" ? "ativado" : "inativado"} com sucesso!`);
+    } catch (err) {
+      console.error(`Erro ao ${acao} assistido:`, err);
+      alert(`Erro ao ${acao} assistido`);
     }
   };
 
@@ -62,7 +92,8 @@ function ListaAssistidos() {
     const matchesSearch =
       a.nome.toLowerCase().includes(search.toLowerCase()) ||
       a.cpf.includes(search) ||
-      a.nome_responsavel?.toLowerCase().includes(search.toLowerCase());
+      a.nome_responsavel?.toLowerCase().includes(search.toLowerCase()) ||
+      a.email?.toLowerCase().includes(search.toLowerCase());
 
     const matchesStatus =
       statusFilter === "all" ||
@@ -72,60 +103,77 @@ function ListaAssistidos() {
     return matchesSearch && matchesStatus;
   });
 
+  const formatarCPF = (cpf: string) => {
+    return cpf.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, "$1.$2.$3-$4");
+  };
+
+  const formatarData = (dataString: string) => {
+    if (!dataString) return "-";
+    return new Date(dataString).toLocaleDateString('pt-BR');
+  };
+
   return (
-    <div className="min-h-screen bg-gray-50 p-6">
-      <div className="max-w-7xl mx-auto">
+    <div className="lista-container">
+      <div className="container-max">
         {/* Header */}
-        <div className="bg-white rounded-xl shadow-sm p-6 mb-6">
-          <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-            <div>
-              <h1 className="text-2xl font-bold text-gray-800 flex items-center gap-2">
-                <FaUserCircle className="text-blue-600" />
+        <div className="card-header">
+          <div className="header-content">
+            <div className="header-title">
+              <h1 className="title">
+                <FaUserCircle className="title-icon" />
                 Gestão de Assistidos
               </h1>
+              <p className="subtitle">
+                Gerencie os assistidos da APAE
+              </p>
             </div>
 
-            <div className="flex flex-col sm:flex-row gap-3 w-full md:w-auto">
+            <div className="header-actions">
               <button
                 onClick={carregarAssistidos}
-                className="flex items-center justify-center gap-2 px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors"
+                disabled={isLoading}
+                className="btn-secondary"
               >
-                <FaSync />
-                Atualizar
+                <FaSync className={isLoading ? "spin" : ""} />
+                {isLoading ? "Carregando..." : "Atualizar"}
               </button>
 
-              <Link
-                to="/assistidos/cadastro"
-                className="flex items-center justify-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+              <button
+                onClick={() => navigate("/assistidos/cadastro")}
+                className="btn-primary"
               >
                 <FaPlus />
                 Novo Assistido
-              </Link>
+              </button>
             </div>
           </div>
         </div>
 
         {/* Filtros e Busca */}
-        <div className="bg-white rounded-xl shadow-sm p-6 mb-6">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div className="relative">
-              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+        <div className="card-filters">
+          <div className="filters-grid">
+            <div className="search-container">
+              <div className="search-icon">
+                <FaSearch />
               </div>
               <input
                 type="text"
-                placeholder="Pesquisar por nome, CPF ou responsável..."
+                placeholder="Pesquisar por nome, CPF, responsável ou email..."
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                className="pl-12 pr-4 py-2 w-full border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="search-input"
               />
             </div>
 
-            <div className="flex flex-col">
-              <label className="text-sm font-medium text-gray-700 mb-1">Status</label>
+            <div className="filter-group">
+              <label className="filter-label">
+                <FaFilter className="filter-icon" />
+                Status
+              </label>
               <select
                 value={statusFilter}
                 onChange={(e) => setStatusFilter(e.target.value as "all" | "active" | "inactive")}
-                className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="filter-select"
               >
                 <option value="all">Todos</option>
                 <option value="active">Ativos</option>
@@ -133,100 +181,120 @@ function ListaAssistidos() {
               </select>
             </div>
 
-            <div className="flex items-end">
-              <div className="text-sm text-gray-600">
-                {filtrados.length} {filtrados.length === 1 ? 'resultado' : 'resultados'}
+            <div className="results-count">
+              <div className="count-text">
+                {filtrados.length} {filtrados.length === 1 ? 'assistido encontrado' : 'assistidos encontrados'}
               </div>
             </div>
           </div>
         </div>
 
         {/* Tabela */}
-        <div className="bg-white rounded-xl shadow-sm overflow-hidden">
+        <div className="card-table">
           {isLoading ? (
-            <div className="flex justify-center items-center py-12">
-              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+            <div className="loading-container">
+              <div className="loading-spinner"></div>
             </div>
           ) : filtrados.length === 0 ? (
-            <div className="text-center py-12 px-4">
-              <FaUser className="text-gray-300 text-5xl mx-auto mb-4" />
-              <h3 className="text-lg font-medium text-gray-700 mb-2">Nenhum paciente encontrado</h3>
-              <p className="text-gray-500 mb-4">
+            <div className="empty-state">
+              <FaUser className="empty-icon" />
+              <h3 className="empty-title">Nenhum assistido encontrado</h3>
+              <p className="empty-description">
                 {search || statusFilter !== "all"
                   ? "Tente ajustar os filtros de busca"
-                  : "Cadastre o primeiro paciente clicando no botão acima"}
+                  : "Cadastre o primeiro assistido clicando no botão 'Novo Assistido'"}
               </p>
+              <button
+                onClick={() => navigate("/assistidos/cadastro")}
+                className="btn-primary"
+              >
+                <FaPlus />
+                Cadastrar Primeiro Assistido
+              </button>
             </div>
           ) : (
-            <div className="overflow-x-auto">
-              <table className="w-full">
-                <thead className="bg-gray-50">
+            <div className="table-container">
+              <table className="data-table">
+                <thead className="table-header">
                   <tr>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Paciente
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      CPF
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Contato
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Responsável
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Status
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Ações
-                    </th>
+                    <th className="table-head">Assistido</th>
+                    <th className="table-head">CPF</th>
+                    <th className="table-head">Contato</th>
+                    <th className="table-head">Responsável</th>
+                    <th className="table-head">Data de Cadastro</th>
+                    <th className="table-head">Status</th>
+                    <th className="table-head">Ações</th>
                   </tr>
                 </thead>
-                <tbody className="bg-white divide-y divide-gray-200">
+                <tbody className="table-body">
                   {filtrados.map((a) => (
-                    <tr key={a.id_assistido} className="hover:bg-gray-50 transition-colors">
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="flex items-center">
-                          <div className="flex-shrink-0 h-10 w-10 bg-blue-100 rounded-full flex items-center justify-center">
-                            <FaUser className="text-blue-600" />
+                    <tr key={a.id_assistido} className="table-row">
+                      <td className="table-cell">
+                        <div className="user-info">
+                          <div className="user-avatar">
+                            <FaUser className="avatar-icon" />
                           </div>
-                          <div className="ml-4">
-                            <div className="text-sm font-medium text-gray-900">{a.nome}</div>
+                          <div className="user-details">
+                            <div className="user-name">{a.nome}</div>
+                            <div className="user-id">ID: {a.id_assistido}</div>
                           </div>
                         </div>
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="text-sm text-gray-900">{a.cpf}</div>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="flex items-center text-sm text-gray-900">
-                          <FaPhone className="text-gray-400 mr-2" />
-                          {a.telefone}
+                      <td className="table-cell">
+                        <div className="cpf-info">
+                          <FaIdCard className="cpf-icon" />
+                          {formatarCPF(a.cpf)}
                         </div>
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="text-sm text-gray-900">{a.nome_responsavel || "-"}</div>
+                      <td className="table-cell">
+                        <div className="contact-info">
+                          <div className="contact-item">
+                            <FaPhone className="contact-icon" />
+                            {a.telefone}
+                          </div>
+                          {a.email && (
+                            <div className="contact-item email">
+                              <FaEnvelope className="contact-icon" />
+                              {a.email}
+                            </div>
+                          )}
+                        </div>
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${a.status_ativo
-                          ? "bg-green-100 text-green-800"
-                          : "bg-red-100 text-red-800"
-                          }`}>
+                      <td className="table-cell">
+                        <div className="responsible-name">
+                          {a.nome_responsavel || "-"}
+                        </div>
+                      </td>
+                      <td className="table-cell">
+                        {formatarData(a.data_criacao || "")}
+                      </td>
+                      <td className="table-cell">
+                        <button
+                          onClick={() => toggleStatusAssistido(a)}
+                          className={`status-badge ${a.status_ativo ? "status-active" : "status-inactive"}`}
+                        >
                           {a.status_ativo ? "Ativo" : "Inativo"}
-                        </span>
+                        </button>
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                        <div className="flex space-x-2">
+                      <td className="table-cell">
+                        <div className="action-buttons">
                           <button
-                            onClick={() => navigate(`/editar-assistido/${a.id_assistido}`)}
-                            className="text-green-600 hover:text-green-900 p-1 rounded hover:bg-green-50"
+                            onClick={() => navigate(`/assistidos/editar/${a.id_assistido}`)}
+                            className="btn-action btn-edit"
                             title="Editar assistido"
                           >
                             <FaEdit />
                           </button>
                           <button
+                            onClick={() => navigate(`/assistidos/ficha/${a.id_assistido}`)}
+                            className="btn-action btn-view"
+                            title="Ver ficha"
+                          >
+                            <FaEye />
+                          </button>
+                          <button
                             onClick={() => excluirAssistido(a.id_assistido)}
-                            className="text-red-600 hover:text-red-900 p-1 rounded hover:bg-red-50"
+                            className="btn-action btn-delete"
                             title="Excluir assistido"
                           >
                             <FaTrash />
