@@ -79,7 +79,7 @@ const EditarUsuario: React.FC = () => {
             navigate('/login');
           } else if (error.response.status === 404) {
             alert('Usuário não encontrado.');
-            navigate('/usuarios');
+            navigate('/usuarios/lista'); // ✅ CORRIGIDO
           } else {
             alert(`Erro ao carregar: ${error.response.status} - ${error.response.data.message}`);
           }
@@ -116,8 +116,18 @@ const EditarUsuario: React.FC = () => {
       return;
     }
 
+    if (formData.senha_hash && formData.senha_hash.length < 6) {
+      alert('A senha deve ter no mínimo 6 caracteres!');
+      return;
+    }
+
     try {
-      const apiURL = `${import.meta.env.VITE_URL_BACKEND || 'http://localhost:3000'}/usuarios/${id}`;
+      if (!usuarioId || isNaN(usuarioId)) {
+        alert('ID do usuário inválido');
+        return;
+      }
+
+      const apiURL = `http://localhost:3000/usuarios/${usuarioId}`;
       const token = localStorage.getItem('token');
 
       if (!token) {
@@ -152,7 +162,8 @@ const EditarUsuario: React.FC = () => {
       console.log('Usuário atualizado com sucesso:', response.data);
       alert('Usuário atualizado com sucesso!');
       
-      navigate('/usuarios');
+      // ✅ CORRIGIDO: Navegação para a lista de usuários
+      navigate('/usuarios/lista');
 
     } catch (error) {
       if (axios.isAxiosError(error) && error.response) {
@@ -172,6 +183,11 @@ const EditarUsuario: React.FC = () => {
         alert('Erro de conexão. Verifique se o backend está em execução.');
       }
     }
+  };
+
+  // ✅ CORRIGIDO: Função específica para voltar
+  const handleVoltar = () => {
+    navigate('/usuarios/lista');
   };
 
   if (carregando) {
@@ -204,8 +220,9 @@ const EditarUsuario: React.FC = () => {
       <div className="cadastro-container">
         <div className="error-message">
           <p>{erro}</p>
-          <button onClick={() => navigate('/usuarios')} className="back-button">
-            Voltar para a lista
+          {/* ✅ CORRIGIDO: Botão voltar com rota correta */}
+          <button onClick={handleVoltar} className="back-button">
+            Voltar
           </button>
         </div>
       </div>
@@ -215,7 +232,8 @@ const EditarUsuario: React.FC = () => {
   return (
     <div className="cadastro-container">
       <div className="cadastro-header">
-        <button className="back-button" onClick={() => navigate('/usuarios')}>
+        {/* ✅ CORRIGIDO: Botão voltar com função específica */}
+        <button className="back-button" onClick={handleVoltar}>
           <FiArrowLeft size={20} />
           Voltar
         </button>
@@ -337,10 +355,11 @@ const EditarUsuario: React.FC = () => {
             )}
 
             <div className="form-actions">
+              {/* ✅ CORRIGIDO: Botão cancelar com função específica */}
               <button 
                 type="button" 
                 className="btn-cancelar"
-                onClick={() => navigate('/usuarios')}
+                onClick={handleVoltar}
                 style={{
                   padding: '12px 25px',
                   background: '#6c757d',

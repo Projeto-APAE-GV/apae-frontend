@@ -260,11 +260,11 @@ function ListaUsuarios() {
                           {u.ativo ? "Ativo" : "Inativo"}
                         </button>
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                        <div className="flex space-x-2">
+                      <td className="table-cell">
+                        <div className="action-buttons">
                           <button
-                            onClick={() => navigate(`/editar-usuario/${u.id_usuario}`)}
-                            className="text-green-600 hover:text-green-900 p-1 rounded hover:bg-green-50"
+                            onClick={() => navigate(`/usuarios/editar/${u.id_usuario}`)}
+                            className="btn-action btn-edit"
                             title="Editar usuário"
                           >
                             <FaEdit />
@@ -275,7 +275,6 @@ function ListaUsuarios() {
                             title="Excluir usuário"
                           >
                             <FaTrash />
-                             
                           </button>
                         </div>
                       </td>

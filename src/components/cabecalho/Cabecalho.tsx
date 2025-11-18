@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { obterUsuarioLogado, removerToken } from '../../utils/AuthUtils';
 import { 
-  FiUserPlus, 
   FiUser, 
   FiUsers,
   FiFileText, 
@@ -35,14 +34,15 @@ const Cabecalho: React.FC = () => {
     };
 
     const isActiveLink = (path: string) => {
-        return location.pathname === path;
+        return location.pathname.startsWith(path);
     };
 
     return (
         <>
             <header className="cabecalho">
                 <div className="cabecalho-conteudo">
-                    <Link to="/cadastro-usuario" className="logo-link">
+                    {/* Logo link para página inicial */}
+                    <Link to="/assistidos" className="logo-link">
                         <div className="logo">
                             
                         </div>
@@ -54,64 +54,42 @@ const Cabecalho: React.FC = () => {
                     </button>
 
                     <nav className={`navegacao ${menuAberto ? 'aberto' : ''}`}>
-                        {/* Menu Usuários - Visível apenas para admin */}
-                        {usuario?.tipo === 'admin' && (
-                            <div className="nav-group">
-                                <div className="nav-group-header">
-                                    <FiUsers className="nav-icon" />
-                                    <span>Usuários</span>
-                                </div>
-                                <div className="nav-submenu">
-                                    <Link 
-                                        to="/cadastro-usuario" 
-                                        className={`nav-subitem ${isActiveLink('/cadastro-usuario') ? 'ativo' : ''}`}
-                                        onClick={() => setMenuAberto(false)}
-                                    >
-                                        <FiUserPlus className="nav-subicon" />
-                                        <span>Cadastrar Usuário</span>
-                                    </Link>
-                                    <Link 
-                                        to="/lista-usuarios" 
-                                        className={`nav-subitem ${isActiveLink('/lista-usuarios') ? 'ativo' : ''}`}
-                                        onClick={() => setMenuAberto(false)}
-                                    >
-                                        <FiUsers className="nav-subicon" />
-                                        <span>Lista de Usuários</span>
-                                    </Link>
-                                </div>
-                            </div>
-                        )}
-                        
+                        {/* ✅ Menu Assistidos - Página Principal */}
                         <Link 
-                            to="/cadastro-assistido" 
-                            className={`nav-item ${isActiveLink('/cadastro-assistido') ? 'ativo' : ''}`}
+                            to="/assistidos" 
+                            className={`nav-item ${isActiveLink('/assistidos') ? 'ativo' : ''}`}
                             onClick={() => setMenuAberto(false)}
                         >
                             <FiUser className="nav-icon" />
-                            <span>Assistido</span>
+                            <span>Assistidos</span>
                         </Link>
                         
-                        <Link 
-                            to="/lista-usuario" 
-                            className={`nav-item ${isActiveLink('/lista-usuario') ? 'ativo' : ''}`}
-                            onClick={() => setMenuAberto(false)}
-                        >
-                            <FiUsers className="nav-icon" />
-                            <span>Usuários</span>
-                        </Link>
+                        {/* ✅ Menu Usuários - SIMPLES, sem dropdown */}
+                        {usuario?.tipo === 'admin' && (
+                            <Link 
+                                to="/usuarios/lista" 
+                                className={`nav-item ${isActiveLink('/usuarios') ? 'ativo' : ''}`}
+                                onClick={() => setMenuAberto(false)}
+                            >
+                                <FiUsers className="nav-icon" />
+                                <span>Usuários</span>
+                            </Link>
+                        )}
                         
+                        {/* ✅ Menu Prontuário */}
                         <Link 
-                            to="/ficha-prontuario" 
-                            className={`nav-item ${isActiveLink('/ficha-prontuario') ? 'ativo' : ''}`}
+                            to="/prontuario/ficha" 
+                            className={`nav-item ${isActiveLink('/prontuario') ? 'ativo' : ''}`}
                             onClick={() => setMenuAberto(false)}
                         >
                             <FiFileText className="nav-icon" />
                             <span>Ficha de Prontuário</span>
                         </Link>
                         
+                        {/* ✅ Menu Relatórios */}
                         <Link 
-                            to="/relatorio" 
-                            className={`nav-item ${isActiveLink('/relatorio') ? 'ativo' : ''}`}
+                            to="/relatorios" 
+                            className={`nav-item ${isActiveLink('/relatorios') ? 'ativo' : ''}`}
                             onClick={() => setMenuAberto(false)}
                         >
                             <FiBarChart2 className="nav-icon" />
