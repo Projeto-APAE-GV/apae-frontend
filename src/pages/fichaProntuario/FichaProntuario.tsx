@@ -38,18 +38,23 @@ const FichaProntuario: React.FC = () => {
   }, []);
 
   const handleSelecionarAssistido = (assistido: Assistido) => {
-    // Navegar para a tela FichaAssistido com o ID do assistido
-    navigate(`/ficha-assistido/${assistido.id}`, { state: { assistido } });
+    // CORREÇÃO: Navegar para a rota correta da ficha do assistido
+    navigate(`/assistidos/ficha/${assistido.id}`, { state: { assistido } });
   };
 
   const handleCadastrarPergunta = () => {
-    // Navegar para a tela de cadastro de pergunta
-    navigate('/cadastro-pergunta');
+    // CORREÇÃO: Navegar para a rota correta do cadastro de pergunta
+    navigate('/prontuario/perguntas/cadastro');
   };
 
   const handleCadastrarAssistido = () => {
-    // Navegar para a tela de cadastro de assistido
-    navigate('/cadastro-assistido');
+    // CORREÇÃO: Navegar para a rota correta do cadastro de assistido
+    navigate('/assistidos/cadastro');
+  };
+
+  const handleGerenciarPerguntas = () => {
+    // CORREÇÃO: Navegar para a rota correta de gerenciar perguntas
+    navigate('/prontuario/perguntas/excluir');
   };
 
   // Filtrar assistidos baseado no termo de pesquisa
@@ -80,7 +85,6 @@ const FichaProntuario: React.FC = () => {
         <div className="pesquisa-container">
           <div className="pesquisa-input">
             <input
-            
               type="text"
               placeholder="Pesquisar por nome ou CPF..."
               value={termoPesquisa}
@@ -93,7 +97,7 @@ const FichaProntuario: React.FC = () => {
           <button className="btn-cadastrar-pergunta" onClick={handleCadastrarPergunta}>
             <FaPlus /> Cadastrar Pergunta
           </button>
-          <button className="btn-gerenciar-perguntas" onClick={() => navigate('/excluir-perguntas')}>
+          <button className="btn-gerenciar-perguntas" onClick={handleGerenciarPerguntas}>
             <FaTrash /> Gerenciar Perguntas
           </button>
         </div>
